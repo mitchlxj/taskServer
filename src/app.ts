@@ -1,0 +1,71 @@
+import express from "express";
+import bodyParser from "body-parser";
+import favicon from "serve-favicon";
+import cookieParser from "cookie-parser";
+import path from "path";
+import createError from "http-errors";
+import connectRedis from 'connect-redis';
+import session from 'express-session';
+import redisUtil from "./utils/redisUtil";
+
+const RedisStore = connectRedis(session);
+const redis_util = new redisUtil();
+
+const app = express();
+
+app.set("port", process.env.PORT || 3000);
+app.set("views", path.join(__dirname, "../views"));
+app.set("view engine", "pug");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(session({
+    name:'taskServer',
+    store: new RedisStore({
+        client:redis_util.myCreateClient('sessionStore')
+    }),
+    secret: 'taskServer',
+    resave : true,
+    rolling :true,
+    saveUninitialized: false,
+    // cookie: {maxAge: 3600000}
+    cookie: {maxAge: 3600000}
+}))
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, '../public')));
+app.use(function(req,res,next){
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+    req.originalUrl=decodeURIComponent(req.originalUrl);
+    next();
+});
+
+import init from './routers/init';
+import taskUser from './routers/taskUser';
+
+
+app.use('/init',init);
+app.use('/taskUser',taskUser);
+
+
+app.use((req, res, next) =>{
+    next(createError(404));
+  });
+  
+  // error handler
+  app.use((err:any, req:any, res:any, next:any) => {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+  });
+
+
+
+export default app;
