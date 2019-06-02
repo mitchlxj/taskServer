@@ -27,8 +27,7 @@ function getTaskUser(req, res) {
     if (where.strSql) {
         where.strSql = " where " + where.strSql;
     }
-    var order = "order by id desc";
-    models_1.default.taskUser.mySqlModel.getWhere(where, order).subscribe(function (value) {
+    models_1.default.taskUser.mySqlModel.getWhere(where).subscribe(function (value) {
         if (value.err) {
             return res.json(new JSONRet_1.default(errCode_1.default.mysql));
         }
@@ -47,4 +46,4 @@ function setTaskUser(req, res) {
     });
 }
 exports.setTaskUser = setTaskUser;
-//# sourceMappingURL=taskUser.js.map
+//# sourceMappingURL=taskUser.1.js.map

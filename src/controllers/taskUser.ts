@@ -27,7 +27,9 @@ export function getTaskUser(req: Request, res: Response) {
     where.strSql = " where " + where.strSql;
   }
 
-  models.taskUser.mySqlModel.getWhere(where).subscribe(value => {
+  let order = "order by id desc";
+
+  models.taskUser.mySqlModel.getWhere(where,order).subscribe(value => {
     if (value.err) {
       return res.json(new JSONRet(errCode.mysql));
     }

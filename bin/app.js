@@ -41,10 +41,10 @@ app.use(function (req, res, next) {
     req.originalUrl = decodeURIComponent(req.originalUrl);
     next();
 });
-var init_1 = __importDefault(require("./routers/init"));
-var taskUser_1 = __importDefault(require("./routers/taskUser"));
-app.use('/init', init_1.default);
-app.use('/taskUser', taskUser_1.default);
+var routers_1 = __importDefault(require("./routers"));
+app.use('/init', routers_1.default.init);
+app.use('/taskUser', routers_1.default.taskUser);
+app.use('/taskList', routers_1.default.taskList);
 app.use(function (req, res, next) {
     next(http_errors_1.default(404));
 });

@@ -4,7 +4,7 @@ export class mysqlResultObj{
   qy: any
 }
 
-export interface mysqlModelObj{
+export interface tmpMysqlModel{
   name:string;
   pk:string;
   column:string[];

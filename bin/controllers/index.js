@@ -9,9 +9,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var taskUser = __importStar(require("./taskUser"));
 var taskList = __importStar(require("./taskList"));
-var models = {
+var controllers = {
     taskUser: taskUser,
     taskList: taskList,
 };
-exports.default = models;
+exports.default = controllers;
 //# sourceMappingURL=index.js.map

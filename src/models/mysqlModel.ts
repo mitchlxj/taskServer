@@ -1,6 +1,5 @@
-import { mysqlModelObj } from './../interface/classModel';
+import { tmpMysqlModel } from './../interface/classModel';
 import mysqlMainDB from "../utils/mysql/mainDB";
-import errCode from '../utils/errCode';
 
 
 
@@ -10,7 +9,7 @@ export default class mysqlModel {
     pk: string = "";
     column: string[] = [];
 
-    constructor(config: mysqlModelObj) {
+    constructor(config: tmpMysqlModel) {
         if (!(typeof config == "object" && config.name && config.pk && config.column)) {
             throw Error("无效的config");
         }
@@ -47,11 +46,17 @@ export default class mysqlModel {
     };
 
 
-    getWhere = (data: any) => {
+    getWhere = (data: any,order:any) => {
         const params = [this.column, this.name, ...data.params];
-        const strSql = `select ?? from ?? ${data.strSql}`;
+        const strSql = `select ?? from ?? ${data.strSql} ${order}`;
         return mysqlMainDB.execWP(strSql, params);
     };
+
+    getWhereAndPage = (data:any,order:any,page:any) => {
+        const params = [this.column, this.name, ...data.params,...page.params];
+        const strSql = `select ?? from ?? ${data.strSql} ${order} ${page.strSql}`;
+        return mysqlMainDB.execWP(strSql, params);
+    }
 
 
 }

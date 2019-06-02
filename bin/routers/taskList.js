@@ -7,7 +7,7 @@ var express_1 = __importDefault(require("express"));
 var router = express_1.default.Router();
 var controllers_1 = __importDefault(require("../controllers"));
 /* GET home page. */
-router.post('/getTaskUser', controllers_1.default.taskUser.getTaskUser);
-router.post('/setTaskUser', controllers_1.default.taskUser.setTaskUser);
+router.post('/getTaskList', controllers_1.default.taskList.getTaskList);
+router.post('/setTaskList', controllers_1.default.taskList.setTaskList);
 exports.default = router;
-//# sourceMappingURL=taskUser.js.map
+//# sourceMappingURL=taskList.js.map

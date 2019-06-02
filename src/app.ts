@@ -1,3 +1,4 @@
+import { taskList } from './models/taskList';
 import express from "express";
 import bodyParser from "body-parser";
 import favicon from "serve-favicon";
@@ -43,12 +44,12 @@ app.use(function(req,res,next){
     next();
 });
 
-import init from './routers/init';
-import taskUser from './routers/taskUser';
+import routers from './routers';
 
 
-app.use('/init',init);
-app.use('/taskUser',taskUser);
+app.use('/init',routers.init);
+app.use('/taskUser',routers.taskUser);
+app.use('/taskList',routers.taskList);
 
 
 app.use((req, res, next) =>{

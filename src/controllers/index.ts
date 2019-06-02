@@ -1,10 +1,10 @@
 import * as taskUser from "./taskUser";
 import * as taskList from "./taskList";
 
-  const models = {
+  const controllers = {
     taskUser: taskUser,
     taskList:taskList,
    
 }
 
-export default models;
+export default controllers;

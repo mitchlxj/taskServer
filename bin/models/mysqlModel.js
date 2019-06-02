@@ -10,9 +10,14 @@ var mysqlModel = /** @class */ (function () {
         this.name = "";
         this.pk = "";
         this.column = [];
-        this.getWhere = function (data) {
+        this.getWhere = function (data, order) {
             var params = [_this.column, _this.name].concat(data.params);
-            var strSql = "select ?? from ?? " + data.strSql;
+            var strSql = "select ?? from ?? " + data.strSql + " " + order;
+            return mainDB_1.default.execWP(strSql, params);
+        };
+        this.getWhereAndPage = function (data, order, page) {
+            var params = [_this.column, _this.name].concat(data.params, page.params);
+            var strSql = "select ?? from ?? " + data.strSql + " " + order + " " + page.strSql;
             return mainDB_1.default.execWP(strSql, params);
         };
         if (!(typeof config == "object" && config.name && config.pk && config.column)) {
