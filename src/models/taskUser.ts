@@ -22,4 +22,13 @@ export function getTaskUser(data: any):Observable<mysqlResultObj>{
 
 
 
+export function userLogin(data:any):Observable<any> {
+    let sql = `select id,area_limit,user_name,user_type,status,ctime from task_user where user_name = ? and user_password = ?`;
+    let params:any[] = [data.user_name,data.password];
+
+    return mysqlMainDB.execWP(sql,params);
+}
+
+
+
 

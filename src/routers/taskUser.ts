@@ -5,6 +5,7 @@ import controller from '../controllers'
 
 router.post('/getTaskUser',controller.taskUser.getTaskUser);
 router.post('/setTaskUser',controller.taskUser.setTaskUser);
+router.post('/userLogin',controller.taskUser.userLogin)
 
 
 

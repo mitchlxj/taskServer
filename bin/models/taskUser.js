@@ -21,4 +21,10 @@ function getTaskUser(data) {
     return mainDB_1.default.execWP(sql, params);
 }
 exports.getTaskUser = getTaskUser;
+function userLogin(data) {
+    var sql = "select id,area_limit,user_name,user_type,status,ctime from task_user where user_name = ? and user_password = ?";
+    var params = [data.user_name, data.password];
+    return mainDB_1.default.execWP(sql, params);
+}
+exports.userLogin = userLogin;
 //# sourceMappingURL=taskUser.js.map

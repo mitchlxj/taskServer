@@ -9,3 +9,4 @@ export interface tmpMysqlModel{
   pk:string;
   column:string[];
 }
+

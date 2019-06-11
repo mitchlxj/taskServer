@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import errCode from "../utils/errCode";
 import JSONRet from '../utils/JSONRet';
 import models from '../models';
+import * as crypto from '../utils/crypto';
 
 
 export function getTaskUser(req: Request, res: Response) {
@@ -29,7 +30,7 @@ export function getTaskUser(req: Request, res: Response) {
 
   let order = "order by id desc";
 
-  models.taskUser.mySqlModel.getWhere(where,order).subscribe(value => {
+  models.taskUser.mySqlModel.getWhere(where, order).subscribe(value => {
     if (value.err) {
       return res.json(new JSONRet(errCode.mysql));
     }
@@ -38,13 +39,33 @@ export function getTaskUser(req: Request, res: Response) {
 
 };
 
-export function setTaskUser(req: Request, res: Response){
+export function setTaskUser(req: Request, res: Response) {
   let dataAll = req.body;
-  models.taskUser.mySqlModel.createOrUpdate(dataAll).subscribe(value=>{
+  models.taskUser.mySqlModel.createOrUpdate(dataAll).subscribe(value => {
     if (value.err) {
       return res.json(new JSONRet(errCode.mysql));
     }
-      return res.json(new JSONRet(errCode.success));
+    return res.json(new JSONRet(errCode.success));
   })
+}
+
+
+export function userLogin(req: Request, res: Response) {
+  let dataAll = req.body;
+  if (!(dataAll.user_name || dataAll.password)) {
+    return res.json(new JSONRet(errCode.Err.DIY("请输入账号或密码！")));
+  }
+  let data: any = {}
+  dataAll.user_name ? data.user_name = dataAll.user_name : "";
+  dataAll.password ? data.password = crypto.encrypt(dataAll.password) : "";
+
+
+  models.taskUser.userLogin(data).subscribe(value => {
+    if (value.err) {
+      return res.json(new JSONRet(errCode.mysql));
+    }
+    return res.json(new JSONRet(errCode.success,value.results));
+  })
+
 }
 

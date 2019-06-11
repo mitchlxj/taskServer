@@ -9,5 +9,6 @@ var controllers_1 = __importDefault(require("../controllers"));
 /* GET home page. */
 router.post('/getTaskUser', controllers_1.default.taskUser.getTaskUser);
 router.post('/setTaskUser', controllers_1.default.taskUser.setTaskUser);
+router.post('/userLogin', controllers_1.default.taskUser.userLogin);
 exports.default = router;
 //# sourceMappingURL=taskUser.js.map
