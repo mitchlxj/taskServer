@@ -21,51 +21,53 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
-    name:'taskServer',
-    store: new RedisStore({
-        client:redis_util.myCreateClient('sessionStore')
-    }),
-    secret: 'taskServer',
-    resave : true,
-    rolling :true,
-    saveUninitialized: false,
-    // cookie: {maxAge: 3600000}
-    cookie: {maxAge: 3600000}
+  name: 'taskServer',
+  store: new RedisStore({
+    client: redis_util.myCreateClient('sessionStore')
+  }),
+  secret: 'taskServer',
+  resave: false,
+  //rolling: false,
+  saveUninitialized: false,
+  // cookie: {maxAge: 3600000}
+  cookie: { maxAge: 365 * 24 * 60 * 60 * 1000},
 }))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
-app.use(function(req,res,next){
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    req.originalUrl=decodeURIComponent(req.originalUrl);
-    next();
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Credentials','true');
+  req.originalUrl = decodeURIComponent(req.originalUrl);
+  next();
 });
 
 import routers from './routers';
 
 
-app.use('/init',routers.init);
-app.use('/taskUser',routers.taskUser);
-app.use('/taskList',routers.taskList);
+app.use('/init', routers.init);
+app.use('/taskUser', routers.taskUser);
+app.use('/taskList', routers.taskList);
 
 
-app.use((req, res, next) =>{
-    next(createError(404));
-  });
-  
-  // error handler
-  app.use((err:any, req:any, res:any, next:any) => {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-  
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
-  });
+app.use((req, res, next) => {
+  next(createError(404));
+});
+
+// error handler
+app.use((err: any, req: any, res: any, next: any) => {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
 
 
 

@@ -6,14 +6,14 @@ export default class redisUtil {
     public redisDB:any = {
         "development":{
             "outer":{
-                host:'39.106.105.209',
-                port:8000,
-                pass:''
-            },
-            'inner':{
                 host:'125.64.21.68',
                 port:6379,
                 pass:'GmAe&^%836youGen'
+            },
+            'inner':{
+                host:'125.64.21.72',
+                port:6379,
+                pass:'Rei*(^8239niNwoYYE'
             }
         },
         "production":{

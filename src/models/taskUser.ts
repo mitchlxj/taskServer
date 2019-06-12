@@ -30,5 +30,13 @@ export function userLogin(data:any):Observable<any> {
 }
 
 
+export function checkUserToken(data:any):Observable<any>{
+    let sql = `select 1 from task_user where id = ? and token = ?`;
+    let params:any[] = [data.id,data.token];
+
+    return mysqlMainDB.execWP(sql,params);
+}
+
+
 
 

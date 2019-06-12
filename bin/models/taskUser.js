@@ -27,4 +27,10 @@ function userLogin(data) {
     return mainDB_1.default.execWP(sql, params);
 }
 exports.userLogin = userLogin;
+function checkUserToken(data) {
+    var sql = "select 1 from task_user where id = ? and token = ?";
+    var params = [data.id, data.token];
+    return mainDB_1.default.execWP(sql, params);
+}
+exports.checkUserToken = checkUserToken;
 //# sourceMappingURL=taskUser.js.map

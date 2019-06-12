@@ -3,6 +3,11 @@ import errCode from "../utils/errCode";
 import JSONRet from '../utils/JSONRet';
 import models from '../models';
 import * as crypto from '../utils/crypto';
+import { mergeMap, concatMap, map, switchMap, tap, take, mergeAll, concatAll } from 'rxjs/operators';
+import moment from 'moment';
+import JwtSign from '../utils/jwt';
+import { mysqlResultObj } from '../interface';
+import { of, from } from 'rxjs';
 
 
 export function getTaskUser(req: Request, res: Response) {
@@ -59,13 +64,69 @@ export function userLogin(req: Request, res: Response) {
   dataAll.user_name ? data.user_name = dataAll.user_name : "";
   dataAll.password ? data.password = crypto.encrypt(dataAll.password) : "";
 
+  models.taskUser.userLogin(data).pipe(
+    concatMap(value => {
+      let data2: any = {};
+      let user = value.results[0];
+      data2.ctime = moment().format('YYYY-MM-DD HH:mm:ss');
+      let userToken = JwtSign(user);
+      data2.token = userToken;
+      data2.id = user.id;
+      //req.session ? req.session.userToken = userToken : '';
+      return models.taskUser.mySqlModel.createOrUpdate(data2).pipe(
+        map((res) => {
+          return { err: res.err, results: userToken, qy: res.qy };
+        }),
 
-  models.taskUser.userLogin(data).subscribe(value => {
+      )
+    }),
+  ).subscribe(userPostData => {
+    if (userPostData.err) {
+      return res.json(new JSONRet(errCode.mysql));
+    }
+    return res.json(new JSONRet(errCode.success, userPostData.results));
+  })
+
+
+}
+
+
+
+export function userLoginOut(req: Request, res: Response) {
+
+  req.session ? req.session.userToken = '' : '';
+
+  return res.json(new JSONRet(errCode.success.DIY("@注销成功")));
+
+}
+
+
+export function getUserInfo(req: any, res: Response) {
+  let dataAll = req.user;
+
+  let where = {
+    params: <any[]>[],
+    strSql: <string>""
+  };
+  if (dataAll.id) {
+    where.params.push(dataAll.id);
+    where.strSql += (where.strSql === "" ? "" : " and ") + "id = ? "
+  }
+  if (where.strSql) {
+    where.strSql = " where " + where.strSql;
+  }
+
+  let order = "order by id desc";
+
+  models.taskUser.mySqlModel.getWhere(where, order).subscribe(value => {
     if (value.err) {
       return res.json(new JSONRet(errCode.mysql));
     }
-    return res.json(new JSONRet(errCode.success,value.results));
+    return res.json(new JSONRet(errCode.success, value.results));
   })
 
 }
+
+
+
 
