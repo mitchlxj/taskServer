@@ -8,6 +8,7 @@ var JSONRet_1 = __importDefault(require("../utils/JSONRet"));
 var models_1 = __importDefault(require("../models"));
 function getTaskList(req, res) {
     var dataAll = req.body;
+    dataAll.status ? dataAll.status : dataAll.status = '1';
     var where = {
         params: [],
         strSql: ""

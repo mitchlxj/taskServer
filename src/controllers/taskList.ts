@@ -7,6 +7,8 @@ import models from '../models';
 export function getTaskList(req: Request, res: Response) {
   let dataAll = req.body;
 
+  dataAll.status ? dataAll.status : dataAll.status = '1';
+
   let where = {
     params: <any[]>[],
     strSql: <string>""

@@ -20,5 +20,7 @@ router.post('/setTaskUser', controllers_1.default.taskUser.setTaskUser);
 router.post('/userLogin', controllers_1.default.taskUser.userLogin);
 router.post('/userLoginOut', controllers_1.default.taskUser.userLoginOut);
 router.post('/getUserInfo', permission.jwtVerify, controllers_1.default.taskUser.getUserInfo);
+router.post('/getMyTaskList', permission.jwtVerify, controllers_1.default.userTaskList.getUserTaskList);
+router.post('/setMyTask', permission.jwtVerify, controllers_1.default.userTaskList.setMyTask);
 exports.default = router;
 //# sourceMappingURL=taskUser.js.map

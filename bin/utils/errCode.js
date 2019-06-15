@@ -23,7 +23,7 @@ var ErrDefine = /** @class */ (function () {
 var errCode = {
     success: new ErrDefine("00", "成功"),
     Err: new ErrDefine("01", "失败"),
-    mysql: new ErrDefine("02", "数据库报错"),
+    mysql: new ErrDefine("02", "服务器连接失败"),
     permission: new ErrDefine("97", "无访问权限"),
 };
 exports.default = errCode;

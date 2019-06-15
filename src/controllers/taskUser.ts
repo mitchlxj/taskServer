@@ -65,24 +65,38 @@ export function userLogin(req: Request, res: Response) {
   dataAll.password ? data.password = crypto.encrypt(dataAll.password) : "";
 
   models.taskUser.userLogin(data).pipe(
-    concatMap(value => {
+    switchMap(value => {
       let data2: any = {};
       let user = value.results[0];
-      data2.ctime = moment().format('YYYY-MM-DD HH:mm:ss');
-      let userToken = JwtSign(user);
-      data2.token = userToken;
-      data2.id = user.id;
-      //req.session ? req.session.userToken = userToken : '';
-      return models.taskUser.mySqlModel.createOrUpdate(data2).pipe(
-        map((res) => {
-          return { err: res.err, results: userToken, qy: res.qy };
-        }),
 
-      )
+      if(user){
+        data2.ctime = moment().format('YYYY-MM-DD HH:mm:ss');
+        let userToken = JwtSign(user);
+        data2.token = userToken;
+        data2.id = user.id;
+        //req.session ? req.session.userToken = userToken : '';
+        return models.taskUser.mySqlModel.createOrUpdate(data2).pipe(
+          map((res) => {
+            return { err: res.err, results: userToken, qy: res.qy };
+          }),
+        )
+      }else{
+         return of(value).pipe(
+          map(res=> {
+            return { err: res.err, results: res.results, qy: res.qy };
+          } )
+        )
+      }
+
+     
     }),
   ).subscribe(userPostData => {
     if (userPostData.err) {
       return res.json(new JSONRet(errCode.mysql));
+    }
+
+    if(userPostData.results.length <= 0 ){
+      return res.json(new JSONRet(errCode.Err.DIY("用户名或密码错误！")));
     }
     return res.json(new JSONRet(errCode.success, userPostData.results));
   })
@@ -94,15 +108,13 @@ export function userLogin(req: Request, res: Response) {
 
 export function userLoginOut(req: Request, res: Response) {
 
-  req.session ? req.session.userToken = '' : '';
-
-  return res.json(new JSONRet(errCode.success.DIY("@注销成功")));
+  return res.json(new JSONRet(errCode.success.DIY("注销成功")));
 
 }
 
 
 export function getUserInfo(req: any, res: Response) {
-  let dataAll = req.user;
+  let dataAll = req.body.user;
 
   let where = {
     params: <any[]>[],
@@ -126,6 +138,8 @@ export function getUserInfo(req: any, res: Response) {
   })
 
 }
+
+
 
 
 

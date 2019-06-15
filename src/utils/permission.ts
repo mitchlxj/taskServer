@@ -15,7 +15,7 @@ export function jwtVerify(req: any, res: Response, next: any) {
 
         jwt.verify(userToken, config.jwtTokenSecret, (err, user) => {
             if(err) {
-                return res.json(new JSONRet(errCode.permission.DIY("@用户过期，请重新登录!")));
+                return res.json(new JSONRet(errCode.permission.DIY("用户状态已过期，请重新登录!")));
             }else{
                 let data:any = {};
                 let _user = user as User;
@@ -26,10 +26,10 @@ export function jwtVerify(req: any, res: Response, next: any) {
                         return res.json(new JSONRet(errCode.mysql));
                     }else{
                         if(value.results.length>0){
-                            req.user = user;
+                            req.body.user = user;
                             next();
                         }else {
-                            return res.json(new JSONRet(errCode.permission.DIY("@账号再其他地方登录，请重新登录!")));
+                            return res.json(new JSONRet(errCode.permission.DIY("用户状态已过期，请重新登录!")));
                         }
                     }
                 })
@@ -37,6 +37,6 @@ export function jwtVerify(req: any, res: Response, next: any) {
         })
 
     } else {
-        return res.json(new JSONRet(errCode.permission.DIY("@用户还未登录!")));
+        return res.json(new JSONRet(errCode.permission.DIY("用户还未登录!")));
     }
 }

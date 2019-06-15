@@ -25,13 +25,13 @@ export default class mysqlModel {
     }
 
     createOrUpdate(data: any) {
-        if(data[this.pk]){
+        if (data[this.pk]) {
             let idObj = this.createPkObj(data[this.pk]);
             delete data[this.pk];
             const params = [this.name, data, idObj];
             const strSql = "update ?? set ? where ? ";
             return mysqlMainDB.execWP(strSql, params);
-        }else{
+        } else {
             const params = [this.name, data];
             const strSql = "insert into ?? set ?";
             return mysqlMainDB.execWP(strSql, params);
@@ -46,15 +46,15 @@ export default class mysqlModel {
     };
 
 
-    getWhere = (data: any,order:any) => {
-        const params = [this.column, this.name, ...data.params];
-        const strSql = `select ?? from ?? ${data.strSql} ${order}`;
+    getWhere = (where: any, order: any) => {
+        const params = [this.column, this.name, ...where.params];
+        const strSql = `select ?? from ?? ${where.strSql} ${order}`;
         return mysqlMainDB.execWP(strSql, params);
     };
 
-    getWhereAndPage = (data:any,order:any,page:any) => {
-        const params = [this.column, this.name, ...data.params,...page.params];
-        const strSql = `select ?? from ?? ${data.strSql} ${order} ${page.strSql}`;
+    getWhereAndPage = (where: any, order: any, page: any) => {
+        const params = [this.column, this.name, ...where.params, ...page.params];
+        const strSql = `select ?? from ?? ${where.strSql} ${order} ${page.strSql}`;
         return mysqlMainDB.execWP(strSql, params);
     }
 

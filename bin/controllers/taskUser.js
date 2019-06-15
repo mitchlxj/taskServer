@@ -17,6 +17,7 @@ var crypto = __importStar(require("../utils/crypto"));
 var operators_1 = require("rxjs/operators");
 var moment_1 = __importDefault(require("moment"));
 var jwt_1 = __importDefault(require("../utils/jwt"));
+var rxjs_1 = require("rxjs");
 function getTaskUser(req, res) {
     var dataAll = req.body;
     var where = {
@@ -66,32 +67,41 @@ function userLogin(req, res) {
     var data = {};
     dataAll.user_name ? data.user_name = dataAll.user_name : "";
     dataAll.password ? data.password = crypto.encrypt(dataAll.password) : "";
-    models_1.default.taskUser.userLogin(data).pipe(operators_1.concatMap(function (value) {
+    models_1.default.taskUser.userLogin(data).pipe(operators_1.switchMap(function (value) {
         var data2 = {};
         var user = value.results[0];
-        data2.ctime = moment_1.default().format('YYYY-MM-DD HH:mm:ss');
-        var userToken = jwt_1.default(user);
-        data2.token = userToken;
-        data2.id = user.id;
-        //req.session ? req.session.userToken = userToken : '';
-        return models_1.default.taskUser.mySqlModel.createOrUpdate(data2).pipe(operators_1.map(function (res) {
-            return { err: res.err, results: userToken, qy: res.qy };
-        }));
+        if (user) {
+            data2.ctime = moment_1.default().format('YYYY-MM-DD HH:mm:ss');
+            var userToken_1 = jwt_1.default(user);
+            data2.token = userToken_1;
+            data2.id = user.id;
+            //req.session ? req.session.userToken = userToken : '';
+            return models_1.default.taskUser.mySqlModel.createOrUpdate(data2).pipe(operators_1.map(function (res) {
+                return { err: res.err, results: userToken_1, qy: res.qy };
+            }));
+        }
+        else {
+            return rxjs_1.of(value).pipe(operators_1.map(function (res) {
+                return { err: res.err, results: res.results, qy: res.qy };
+            }));
+        }
     })).subscribe(function (userPostData) {
         if (userPostData.err) {
             return res.json(new JSONRet_1.default(errCode_1.default.mysql));
+        }
+        if (userPostData.results.length <= 0) {
+            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("用户名或密码错误！")));
         }
         return res.json(new JSONRet_1.default(errCode_1.default.success, userPostData.results));
     });
 }
 exports.userLogin = userLogin;
 function userLoginOut(req, res) {
-    req.session ? req.session.userToken = '' : '';
-    return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("@注销成功")));
+    return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("注销成功")));
 }
 exports.userLoginOut = userLoginOut;
 function getUserInfo(req, res) {
-    var dataAll = req.user;
+    var dataAll = req.body.user;
     var where = {
         params: [],
         strSql: ""

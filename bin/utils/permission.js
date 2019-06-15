@@ -14,7 +14,7 @@ function jwtVerify(req, res, next) {
         userToken = req.headers.authorization;
         jsonwebtoken_1.default.verify(userToken, config_1.default.jwtTokenSecret, function (err, user) {
             if (err) {
-                return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("@用户过期，请重新登录!")));
+                return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("用户状态已过期，请重新登录!")));
             }
             else {
                 var data = {};
@@ -27,11 +27,11 @@ function jwtVerify(req, res, next) {
                     }
                     else {
                         if (value.results.length > 0) {
-                            req.user = user;
+                            req.body.user = user;
                             next();
                         }
                         else {
-                            return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("@账号再其他地方登录，请重新登录!")));
+                            return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("用户状态已过期，请重新登录!")));
                         }
                     }
                 });
@@ -39,7 +39,7 @@ function jwtVerify(req, res, next) {
         });
     }
     else {
-        return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("@用户还未登录!")));
+        return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("用户还未登录!")));
     }
 }
 exports.jwtVerify = jwtVerify;
