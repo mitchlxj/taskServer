@@ -12,6 +12,8 @@ var mysqlHelper = /** @class */ (function () {
             _this.pool.getConnection(function (err, connection) {
                 if (err) {
                     _this.mysqlResultObj.err = err;
+                    _this.mysqlResultObj.results = [];
+                    _this.mysqlResultObj.qy = '';
                     observer.next(_this.mysqlResultObj);
                 }
                 else {
@@ -41,6 +43,8 @@ var mysqlHelper = /** @class */ (function () {
                         if (err) {
                             connection.release();
                             _this.mysqlResultObj.err = err;
+                            _this.mysqlResultObj.results = [];
+                            _this.mysqlResultObj.qy = '';
                             observer.next(_this.mysqlResultObj);
                         }
                         else {
@@ -49,6 +53,7 @@ var mysqlHelper = /** @class */ (function () {
                                     connection.rollback(function () {
                                         connection.release();
                                         _this.mysqlResultObj.err = err;
+                                        _this.mysqlResultObj.results = [];
                                         _this.mysqlResultObj.qy = query_2.sql;
                                         observer.next(_this.mysqlResultObj);
                                     });
@@ -59,6 +64,7 @@ var mysqlHelper = /** @class */ (function () {
                                             connection.rollback(function () {
                                                 connection.release();
                                                 _this.mysqlResultObj.err = err;
+                                                _this.mysqlResultObj.results = [];
                                                 _this.mysqlResultObj.qy = query_2.sql;
                                                 observer.next(_this.mysqlResultObj);
                                             });

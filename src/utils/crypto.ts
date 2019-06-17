@@ -28,3 +28,27 @@ export function decrypt(text:string,pwd?:string){
         return false;
     }
 }
+
+
+export function signSHA1(privateKey:string,data:string){
+    try {
+        const sign = crypto.createSign('SHA1');
+        sign.update(data);
+        let _privateKey = privateKey;
+        var sig = sign.sign(_privateKey, 'base64');
+        return sig;
+    } catch (err) {
+        return false;
+    }
+}
+
+export function verifySHA1(publicKey:string,data:string,signStr:string){
+    try {
+        const verify = crypto.createVerify('SHA1');
+        verify.update(data,'utf8');
+        var signature = signStr;
+        return verify.verify(publicKey, signature,'base64');
+    } catch (err) {
+        return false;
+    }
+}

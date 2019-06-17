@@ -38,6 +38,14 @@ export default class mysqlModel {
         }
     }
 
+    upDateByPkData(data: any, upPk: any) {
+        let idObj = this.createPkObj(data[upPk]);
+        delete data[upPk];
+        const params = [this.name, data, idObj];
+        const strSql = "update ?? set ? where ? ";
+        return mysqlMainDB.execWP(strSql, params);
+    }
+
 
     get(id: any) {
         const params = [this.column, this.name, this.createPkObj(id)];

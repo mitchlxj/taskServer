@@ -15,6 +15,8 @@ export default class mysqlHelper {
             this.pool.getConnection((err: any, connection: any) => {
                 if (err) {
                     this.mysqlResultObj.err = err;
+                    this.mysqlResultObj.results = [];
+                    this.mysqlResultObj.qy = '';
                     observer.next(this.mysqlResultObj);
                 }
                 else {
@@ -45,6 +47,8 @@ export default class mysqlHelper {
                         if (err) {
                             connection.release();
                             this.mysqlResultObj.err = err;
+                            this.mysqlResultObj.results = [];
+                            this.mysqlResultObj.qy = '';
                             observer.next(this.mysqlResultObj);
                         } else {
 
@@ -53,6 +57,7 @@ export default class mysqlHelper {
                                     connection.rollback(() => {
                                         connection.release();
                                         this.mysqlResultObj.err = err;
+                                        this.mysqlResultObj.results = [];
                                         this.mysqlResultObj.qy = query.sql;
                                         observer.next(this.mysqlResultObj);
                                     });
@@ -63,6 +68,7 @@ export default class mysqlHelper {
                                             connection.rollback(() => {
                                                 connection.release();
                                                 this.mysqlResultObj.err = err;
+                                                this.mysqlResultObj.results = [];
                                                 this.mysqlResultObj.qy = query.sql;
                                                 observer.next(this.mysqlResultObj);
                                             });

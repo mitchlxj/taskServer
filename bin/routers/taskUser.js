@@ -22,5 +22,7 @@ router.post('/userLoginOut', controllers_1.default.taskUser.userLoginOut);
 router.post('/getUserInfo', permission.jwtVerify, controllers_1.default.taskUser.getUserInfo);
 router.post('/getMyTaskList', permission.jwtVerify, controllers_1.default.userTaskList.getUserTaskList);
 router.post('/setMyTask', permission.jwtVerify, controllers_1.default.userTaskList.setMyTask);
+router.post('/myTaskPay', permission.jwtVerify, controllers_1.default.userTaskList.myTaskPay);
+router.post('/myTaskPayBack', permission.jwtVerify, controllers_1.default.userTaskList.myTaskPayBack);
 exports.default = router;
 //# sourceMappingURL=taskUser.js.map
