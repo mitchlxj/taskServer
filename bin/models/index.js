@@ -10,10 +10,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var taskUser = __importStar(require("./taskUser"));
 var taskList = __importStar(require("./taskList"));
 var userTaskList = __importStar(require("./userTaskList"));
+var orderList = __importStar(require("./orderList"));
 var models = {
     taskUser: taskUser,
     taskList: taskList,
     userTaskList: userTaskList,
+    orderList: orderList,
 };
 exports.default = models;
 //# sourceMappingURL=index.js.map

@@ -13,7 +13,7 @@ router.post('/getUserInfo',permission.jwtVerify, controller.taskUser.getUserInfo
 router.post('/getMyTaskList',permission.jwtVerify, controller.userTaskList.getUserTaskList);
 router.post('/setMyTask',permission.jwtVerify, controller.userTaskList.setMyTask);
 router.post('/myTaskPay',permission.jwtVerify, controller.userTaskList.myTaskPay);
-router.post('/myTaskPayBack',permission.jwtVerify, controller.userTaskList.myTaskPayBack);
+router.post('/myTaskPayBack', controller.userTaskList.myTaskPayBack);
 
 
 export default router;

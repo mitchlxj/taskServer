@@ -47,6 +47,13 @@ var mysqlModel = /** @class */ (function () {
             return mainDB_1.default.execWP(strSql, params);
         }
     };
+    mysqlModel.prototype.upDateByPkData = function (data, upPk) {
+        var idObj = this.createPkObj(data[upPk]);
+        delete data[upPk];
+        var params = [this.name, data, idObj];
+        var strSql = "update ?? set ? where ? ";
+        return mainDB_1.default.execWP(strSql, params);
+    };
     mysqlModel.prototype.get = function (id) {
         var params = [this.column, this.name, this.createPkObj(id)];
         var strSql = "select ?? from ?? where ? ";

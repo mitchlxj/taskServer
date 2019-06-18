@@ -29,11 +29,40 @@ function sortEach(data) {
     return str;
 }
 exports.sortEach = sortEach;
-function request(tpye, string, body) {
-    request_1.default.post({
-        url: url,
-        body: body,
+function requestPost(url, body, json, headers) {
+    if (json === void 0) { json = true; }
+    var post$ = rxjs_1.Observable.create(function (observer) {
+        request_1.default.post({ url: url, body: body, json: json, headers: headers }, function (err, res, body) {
+            if (!err && res.statusCode === 200) {
+                observer.next(body);
+            }
+            else {
+                observer.error(err);
+            }
+        });
     });
+    return post$;
 }
-exports.request = request;
+exports.requestPost = requestPost;
+function requestGet(url, headers) {
+    var get$ = rxjs_1.Observable.create(function (observer) {
+        request_1.default.get({ url: url, json: true, headers: headers }, function (err, res, body) {
+            if (!err && res.statusCode === 200) {
+                observer.next(body);
+            }
+            else {
+                observer.error(err);
+            }
+        });
+    });
+    return get$;
+}
+exports.requestGet = requestGet;
+//  request({
+//     url: url,
+//     method: "get",
+//     json: true,
+//     headers: {
+//         "content-type": "application/json",
+//     },
 //# sourceMappingURL=myTool.js.map

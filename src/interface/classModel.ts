@@ -42,7 +42,7 @@ export interface payData {
   txnTime?: string;
   payTimeout?: string;
   backUrl?: string;
-  txnItem?: { propId: string; txnItem: number };
+  txnItem?:string;
   secretkey?: string;
   reserved?: string;
   sign?: string | boolean;

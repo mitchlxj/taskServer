@@ -29,10 +29,10 @@ export function sortEach(data:any){
     return str;
 }
 
-export function requestPost(url:string,body:any): Observable<any>{
+export function requestPost(url:string,body:any,json=true,headers?:object): Observable<any>{
 
    const post$ = Observable.create((observer: Observer<any>) => {
-        request.post({url:url,body:body,json:true},(err,res,body)=>{
+        request.post({url:url,body:body,json:json,headers:headers},(err,res,body)=>{
             if (!err && res.statusCode === 200) {
                 observer.next(body);
             }else{
@@ -45,3 +45,30 @@ export function requestPost(url:string,body:any): Observable<any>{
 
 
 } 
+
+
+export function requestGet(url:string,headers?:any): Observable<any>{
+
+    const get$ = Observable.create((observer: Observer<any>) => {
+         request.get({url:url,json:true,headers:headers},(err,res,body)=>{
+             if (!err && res.statusCode === 200) {
+                 observer.next(body);
+             }else{
+                 observer.error(err);
+             }
+         })
+     })
+ 
+     return get$;
+ 
+ 
+ } 
+
+
+//  request({
+//     url: url,
+//     method: "get",
+//     json: true,
+//     headers: {
+//         "content-type": "application/json",
+//     },

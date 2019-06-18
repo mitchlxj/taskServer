@@ -38,7 +38,7 @@ export default class mysqlModel {
         }
     }
 
-    upDateByPkData(data: any, upPk: any) {
+    upDateByPkData(data: any, upPk: string) {
         let idObj = this.createPkObj(data[upPk]);
         delete data[upPk];
         const params = [this.name, data, idObj];
