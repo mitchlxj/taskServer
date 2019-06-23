@@ -58,11 +58,4 @@ function requestGet(url, headers) {
     return get$;
 }
 exports.requestGet = requestGet;
-//  request({
-//     url: url,
-//     method: "get",
-//     json: true,
-//     headers: {
-//         "content-type": "application/json",
-//     },
 //# sourceMappingURL=myTool.js.map

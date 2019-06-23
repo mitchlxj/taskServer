@@ -63,12 +63,3 @@ export function requestGet(url:string,headers?:any): Observable<any>{
  
  
  } 
-
-
-//  request({
-//     url: url,
-//     method: "get",
-//     json: true,
-//     headers: {
-//         "content-type": "application/json",
-//     },

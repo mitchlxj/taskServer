@@ -25,6 +25,9 @@ function getTaskList(req, res) {
         where.params.push("" + dataAll.status);
         where.strSql += (where.strSql === "" ? "" : " and ") + "status = ? ";
     }
+    if (true) {
+        where.strSql += (where.strSql === "" ? "" : " and ") + "use_num > 0 ";
+    }
     if (where.strSql) {
         where.strSql = " where " + where.strSql;
     }

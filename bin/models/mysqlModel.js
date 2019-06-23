@@ -20,6 +20,11 @@ var mysqlModel = /** @class */ (function () {
             var strSql = "select ?? from ?? " + where.strSql + " " + order + " " + page.strSql;
             return mainDB_1.default.execWP(strSql, params);
         };
+        this.dealMySqlDIY = function (sql, _params) {
+            var params = _params.slice();
+            var strSql = sql;
+            return mainDB_1.default.execWP(strSql, params);
+        };
         if (!(typeof config == "object" && config.name && config.pk && config.column)) {
             throw Error("无效的config");
         }
@@ -31,6 +36,11 @@ var mysqlModel = /** @class */ (function () {
     mysqlModel.prototype.createPkObj = function (id) {
         var obj = {};
         obj[this.pk] = id;
+        return obj;
+    };
+    mysqlModel.prototype.createMyPkObj = function (id, upPk) {
+        var obj = {};
+        obj[upPk] = id;
         return obj;
     };
     mysqlModel.prototype.createOrUpdate = function (data) {
@@ -48,7 +58,7 @@ var mysqlModel = /** @class */ (function () {
         }
     };
     mysqlModel.prototype.upDateByPkData = function (data, upPk) {
-        var idObj = this.createPkObj(data[upPk]);
+        var idObj = this.createMyPkObj(data[upPk], upPk);
         delete data[upPk];
         var params = [this.name, data, idObj];
         var strSql = "update ?? set ? where ? ";

@@ -25,6 +25,8 @@ export interface Task {
   status?: string;
   img?: string;
   ctime?: string;
+  pay_num?:string;
+  use_num:number;
 
 }
 
@@ -38,7 +40,7 @@ export interface payData {
   frontUrl?: string;
   orderDesc?: string;
   name?: string;
-  txnAmt?: number | string;
+  txnAmt?: any;
   txnTime?: string;
   payTimeout?: string;
   backUrl?: string;
@@ -58,6 +60,19 @@ export interface OrderList{
   pay_time?:string;
   status?: string;
 
+
+}
+
+
+export interface MyTask {
+  id?: number;
+  user_id?: string;
+  user_name?: string;
+  task_id?: string;
+  status?: string;
+  ctime?: string;
+  expire_time?: string;
+  pay_lock?: string;
 
 }
 

@@ -15,7 +15,7 @@ import path from 'path';
 import { httpBFMRequest } from '../utils/thirdPost';
 
 
-export function getUserTaskList(req: Request, res: Response) {
+export function getMyTaskList(req: Request, res: Response) {
   let dataAll = req.body;
 
   let userData: User = req.body.user || {};
@@ -40,11 +40,14 @@ export function getUserTaskList(req: Request, res: Response) {
     where.params.push(`${dataAll.status}`);
     where.strSql += (where.strSql === "" ? "" : " and ") + "t.status = ? "
   }
+  if(true){
+    where.strSql += (where.strSql === "" ? "" : " and ") + "t.status != 3 "
+  }
   if (where.strSql) {
     where.strSql = " where " + where.strSql;
   }
 
-  let order = "order by id desc";
+  let order = "order by u.status asc, id desc";
 
   let page = {
     params: <any[]>[],
@@ -75,7 +78,7 @@ export function setMyTask(req: Request, res: Response) {
   dataAll.id ? data.task_id = dataAll.id : "";
   userData.id ? data.user_id = userData.id : "";
   userData.user_name ? data.user_name = userData.user_name : "";
-
+  data.expire_time = moment().add(60, 's').format('YYYY-MM-DD HH:mm:ss');
 
   let where = {
     params: <any[]>[],
@@ -85,6 +88,10 @@ export function setMyTask(req: Request, res: Response) {
     where.params.push(dataAll.id);
     where.strSql += (where.strSql === "" ? "" : " and ") + "id = ? "
   }
+  if (true) {
+    where.strSql += (where.strSql === "" ? "" : " and ") + "use_num > 0 "
+  }
+
 
   if (where.strSql) {
     where.strSql = " where " + where.strSql;
@@ -92,23 +99,31 @@ export function setMyTask(req: Request, res: Response) {
 
   let order = "order by id desc";
 
+  let insertId = '';
   models.taskList.mySqlModel.getWhere(where, order).pipe(
     map(value => value.results.length > 0 ? value.results[0] : {}),
   ).subscribe((task: Task) => {
-    if (task.status == '1') {
+    if (task.status == '1' && task.use_num > 0) {
       models.userTaskList.mySqlModel.createOrUpdate(data).pipe(
-        map(() => ({ id: dataAll.id, status: 2 })),
+        map((userTask) => userTask.results.insertId ? insertId = userTask.results.insertId : ""),
+        map(() => ({ id: dataAll.id, use_num: task.use_num - 1 })),
         mergeMap((task) => models.taskList.mySqlModel.createOrUpdate(task))
       ).subscribe(value => {
         if (value.err) {
           return res.json(new JSONRet(errCode.mysql));
         }
-        return res.json(new JSONRet(errCode.success));
-      })
+
+        models.userTaskList.mySqlModel.get(insertId).subscribe(value => {
+          if (value.err) {
+            return res.json(new JSONRet(errCode.mysql));
+          }
+          return res.json(new JSONRet(errCode.success, value.results));
+        }, err => res.json(new JSONRet(errCode.mysql)))
+      }, err => res.json(new JSONRet(errCode.mysql)))
     } else {
-      return res.json(new JSONRet(errCode.Err.DIY("任务已经被领取!")));
+      return res.json(new JSONRet(errCode.Err.DIY("任务被关闭或任务次数已经用完!")));
     }
-  })
+  }, err => res.json(new JSONRet(errCode.mysql)));
 
 }
 
@@ -125,7 +140,7 @@ export function myTaskPay(req: Request, res: Response) {
     return res.json(new JSONRet(errCode.Err.DIY("用户还没有登录！")));
   }
 
-  let backUrl = 'http://127.0.0.1:3400/taskUser/myTaskPayBack';
+  let backUrl = 'http://39.106.105.209:3000/taskUser/myTaskPayBack';
 
   let tmpPayData: payData = {};
 
@@ -134,7 +149,7 @@ export function myTaskPay(req: Request, res: Response) {
   let nowTime = moment().format("YYMMDDHHmmss");
   let orderId = Math.random().toString(17).substr(2).substr(0, 16) + nowTime;
 
-  let reserved = { name: 'taskPay', task_id: dataAll.id };
+  let reserved = { name: 'taskPay', id: dataAll.my_task_id, task_id: dataAll.id, user_id: userData.id };
 
   tmpPayData.CpId = '197';
   tmpPayData.appId = '100356';
@@ -150,8 +165,6 @@ export function myTaskPay(req: Request, res: Response) {
   tmpPayData.payTimeout = moment().add(5, 'm').format("YYYY-MM-DD HH:mm:ss");
   tmpPayData.secretkey = '7dcdfd826f6a28b3fd9b140e41be76a6';
 
-  const url = "https://testpayment.unionpaygame.com/orders/H5";
-
 
   models.taskList.mySqlModel.get(dataAll.id).subscribe((resObj: mysqlResultObj) => {
     if (resObj.results.length <= 0) {
@@ -160,58 +173,85 @@ export function myTaskPay(req: Request, res: Response) {
 
     let task = resObj.results[0];
 
-    if (task.status !== '2') {
-      return res.json(new JSONRet(errCode.Err.DIY('任务已经完成！')));
+    if (task.status !== '1') {
+      return res.json(new JSONRet(errCode.Err.DIY('任务已经被关闭！')));
     }
 
-    tmpPayData.txnAmt = parseInt(task.pay_num);
-    const txnItem = { propId: '11946', txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
-    tmpPayData.txnItem = JSON.stringify(txnItem);
-
-    let DataOrder = myTool.sortEach(tmpPayData);
-    let private_key = fs.readFileSync(path.join(__dirname, "../config/files/c6493fd2f5b91ba4c8d7e324ef803b8c_pc_private_key.pem")).toString();
-    tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
+    const url = "https://payment.unionpaygame.com/orders/H5";
 
 
-    httpBFMRequest(telephone).subscribe(bfmBody => {
-      const token = bfmBody.data.token;
-      myTool.requestPost(url, tmpPayData).subscribe(body => {
-        if (body.respCode == '00') {
-          let orderListData: OrderList = {};
-          orderListData.order_id = orderId;
-          orderListData.pay_num = tmpPayData.txnAmt as string;
-          orderListData.task_id = dataAll.id;
-          orderListData.user_id = userData.id;
-          orderListData.pay_time = moment().format("YYYY-MM-DD HH:mm:ss");
 
-          models.orderList.mySqlModel.createOrUpdate(orderListData).subscribe((value) => {
-            if (value.err) {
-              return res.json(new JSONRet(errCode.Err.DIY("支付失败")));
-            }
+    models.userTaskList.mySqlModel.get(dataAll.my_task_id).subscribe((resObj) => {
 
-            let sign = body.data.sign;
-            let public_key = fs.readFileSync(path.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
-            delete body.data.sign;
+      if (resObj.results.length <= 0) {
+        return res.json(new JSONRet(errCode.Err.DIY('没有找到对应得任务！')));
+      }
+      let myTask = resObj.results[0];
 
-            let bodyOrder = myTool.sortEach(body.data);
-            let _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
-            if (_signVerify) {
-              const url = `${body.data.url}_${token}`;
-              return res.json(new JSONRet(errCode.success, url));
+      //支付时间过期
+      if (moment().isAfter(myTask.expire_time)) {
+
+        return res.json(new JSONRet(errCode.Err.DIY('支付时间已过期')));
+      }
+
+      const myTaskData = { id: dataAll.my_task_id, pay_lock: 2 };
+
+      models.userTaskList.mySqlModel.createOrUpdate(myTaskData).subscribe(value => {
+
+        tmpPayData.txnAmt = parseFloat(task.pay_num);
+        const txnItem = { propId: '11946', txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
+        tmpPayData.txnItem = JSON.stringify(txnItem);
+
+        let DataOrder = myTool.sortEach(tmpPayData);
+        let private_key = fs.readFileSync(path.join(__dirname, "../config/files/c6493fd2f5b91ba4c8d7e324ef803b8c_pc_private_key.pem")).toString();
+        tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
+
+
+        httpBFMRequest(telephone).subscribe(bfmBody => {
+          const token = bfmBody.data.token;
+          myTool.requestPost(url, tmpPayData).subscribe(body => {
+            if (body.respCode == '00') {
+              let orderListData: OrderList = {};
+              orderListData.order_id = orderId;
+              orderListData.pay_num = tmpPayData.txnAmt as string;
+              orderListData.task_id = dataAll.id;
+              orderListData.user_id = userData.id;
+              orderListData.pay_time = moment().format("YYYY-MM-DD HH:mm:ss");
+
+              models.orderList.mySqlModel.createOrUpdate(orderListData).subscribe((value) => {
+                if (value.err) {
+                  return res.json(new JSONRet(errCode.Err.DIY("支付失败")));
+                }
+
+                let sign = body.data.sign;
+                let public_key = fs.readFileSync(path.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
+                delete body.data.sign;
+
+                let bodyOrder = myTool.sortEach(body.data);
+                let _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
+                if (_signVerify) {
+                  const url = `${body.data.url}?token=${token}`;
+                  return res.json(new JSONRet(errCode.success, url));
+                } else {
+                  return res.json(new JSONRet(errCode.Err.DIY("签名验证失败")));
+                }
+              })
+
             } else {
-              return res.json(new JSONRet(errCode.Err.DIY("签名验证失败")));
+              return res.json(new JSONRet(errCode.Err.DIY(body.respMsg)));
             }
-          })
+          }, err => res.json(new JSONRet(errCode.Err.DIY("获取TN号失败"), err))
+          )
 
-        } else {
-          return res.json(new JSONRet(errCode.Err.DIY(body.respMsg)));
-        }
-      }, err => res.json(new JSONRet(errCode.Err.DIY("获取TN号失败"), err))
-      )
+        }, err => res.json(new JSONRet(errCode.Err, err)));
 
-    }, err => res.json(new JSONRet(errCode.Err, err)));
+      }, err => res.json(new JSONRet(errCode.mysql)))
+
+    })
 
   })
+
+
 
 
 }
@@ -224,11 +264,11 @@ export function myTaskPayBack(req: Request, res: Response) {
   let dataAll = req.body;
 
   res.send("SUCCESS"); //接收到佰付美回调后返回接收成功数据
+  console.log(JSON.stringify(dataAll));
   if (dataAll.respCode == '00') {
     let reBackData = dataAll.data;
-    console.log(JSON.stringify(reBackData));
     let sign = reBackData.sign;
-    let public_key = fs.readFileSync(path.join(__dirname, "../myutil/Game_Cp_public.pem")).toString();
+    let public_key = fs.readFileSync(path.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
     delete reBackData.sign;
     let bodyOrder = myTool.sortEach(reBackData);
     let _signvuerify = crypto.verifySHA1(public_key, bodyOrder, sign);
@@ -241,26 +281,37 @@ export function myTaskPayBack(req: Request, res: Response) {
           status: '1',
         }
         const ob$ = models.orderList.mySqlModel.upDateByPkData(data, 'order_id').pipe(
-          switchMap(() => models.taskList.mySqlModel.get(reserved.task_id).pipe(
-            map((data: mysqlResultObj) => {
-              if (data.results.length > 0) {
-                return data.results[0];
-              } else {
-                return {};
-              }
-            }),
-            switchMap((task: Task) => {
-              const data = {
-                id: task.id,
-                status: 3
-              }
-              return models.taskList.mySqlModel.upDateByPkData(data, 'id')
-            }),
-          )),
-          catchError(err => err),
-        );
+          switchMap(() => models.taskList.mySqlModel.upDateByPkData(data, 'id').pipe(
+              map(() => ({ id: reserved.my_task_id })),
+              switchMap((userTask) => {
+                const data = {
+                  status: 2
+                }
+                let where = {
+                  params: <any[]>[],
+                  strSql: <string>""
+                };
+                if (userTask.id) {
+                  where.params.push(userTask.id);
+                  where.strSql += (where.strSql === "" ? "" : " and ") + "id = ? "
+                }
+             
 
-        ob$.subscribe(value => console.log('回调数据处理完成！'), err => console.log(err));
+                if (where.strSql) {
+                  where.strSql = " where " + where.strSql;
+                }
+
+                return models.userTaskList.setUserTaskListByWhere(data, where).pipe(
+                  map((value) => value),
+                  tap((value) => JSON.stringify(value)),
+                )
+              }),
+            )
+          ),
+          catchError(err => err)
+        )
+
+        ob$.subscribe(value => console.log('成功回调数据处理完成！'), err => console.log(err));
 
       } else {
         console.log("佰付美支付失败--- ");
@@ -268,11 +319,16 @@ export function myTaskPayBack(req: Request, res: Response) {
           order_id: reBackData.OderId,
           status: '2',
         }
-        models.orderList.mySqlModel.upDateByPkData(data, 'order_id');
+        const op$ = models.orderList.mySqlModel.upDateByPkData(data, 'order_id');
+
+        op$.subscribe(value => console.log('失败回调数据处理完成！'), err => console.log(err));
+
       }
+    } else {
+      console.log("签名验证失败！");
     }
   } else {
-    console.log("签名验证失败！");
+    console.log("数据回调返回失败");
   }
 
 }

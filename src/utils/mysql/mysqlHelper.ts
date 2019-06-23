@@ -35,7 +35,7 @@ export default class mysqlHelper {
         return source$;
     }
 
-    execWPTRAN(strSql: string, params: []): Observable<mysqlResultObj> {
+    execWPTRAN(strSql: string, params: any[]): Observable<mysqlResultObj> {
         const source$ = Observable.create((observer: Observer<mysqlResultObj>) => {
             this.pool.getConnection((err: any, connection: any) => {
                 if (err) {

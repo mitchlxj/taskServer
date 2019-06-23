@@ -24,6 +24,12 @@ export default class mysqlModel {
         return obj;
     }
 
+    createMyPkObj(id: string | number, upPk: string) {
+        let obj: any = {};
+        obj[upPk] = id;
+        return obj;
+    }
+
     createOrUpdate(data: any) {
         if (data[this.pk]) {
             let idObj = this.createPkObj(data[this.pk]);
@@ -39,7 +45,7 @@ export default class mysqlModel {
     }
 
     upDateByPkData(data: any, upPk: string) {
-        let idObj = this.createPkObj(data[upPk]);
+        let idObj = this.createMyPkObj(data[upPk], upPk);
         delete data[upPk];
         const params = [this.name, data, idObj];
         const strSql = "update ?? set ? where ? ";
@@ -65,6 +71,13 @@ export default class mysqlModel {
         const strSql = `select ?? from ?? ${where.strSql} ${order} ${page.strSql}`;
         return mysqlMainDB.execWP(strSql, params);
     }
+
+
+    dealMySqlDIY = (sql:string, _params:any[]) => {
+        const params = [..._params];
+        const strSql = sql;
+        return mysqlMainDB.execWP(strSql, params);
+    };
 
 
 }

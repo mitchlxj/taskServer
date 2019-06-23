@@ -8,7 +8,7 @@ export class taskList implements tmpMysqlModel{
     name:string = "task_list";
     pk:string = "id";
     column:string[] = ["id","task_name","task_id","btime","etime","area_limit",
-    "task_type","pay_type","pay_num","user_type","loan_type","status","img","ctime"];
+    "task_type","pay_type","pay_num","user_type","use_num","loan_type","status","img","ctime"];
 }
 
 
