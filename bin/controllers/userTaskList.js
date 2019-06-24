@@ -41,11 +41,11 @@ function getMyTaskList(req, res) {
         where.strSql += (where.strSql === "" ? "" : " and ") + "t.task_id = ? ";
     }
     if (dataAll.status) {
-        where.params.push("" + dataAll.status);
+        where.params.push(dataAll.status);
         where.strSql += (where.strSql === "" ? "" : " and ") + "t.status = ? ";
     }
     if (true) {
-        where.strSql += (where.strSql === "" ? "" : " and ") + "t.status != 3 ";
+        where.strSql += (where.strSql === "" ? "" : " and ") + "u.status != 3 ";
     }
     if (where.strSql) {
         where.strSql = " where " + where.strSql;
@@ -78,7 +78,7 @@ function setMyTask(req, res) {
     dataAll.id ? data.task_id = dataAll.id : "";
     userData.id ? data.user_id = userData.id : "";
     userData.user_name ? data.user_name = userData.user_name : "";
-    data.expire_time = moment_1.default().add(60, 's').format('YYYY-MM-DD HH:mm:ss');
+    data.expire_time = moment_1.default().add(30, 's').format('YYYY-MM-DD HH:mm:ss');
     var where = {
         params: [],
         strSql: ""
@@ -222,11 +222,11 @@ function myTaskPayBack(req, res) {
             if (reBackData.status == 1) {
                 console.log("佰付美支付成功--- ");
                 var reserved_1 = JSON.parse(reBackData.reserved);
-                var data_1 = {
+                var data = {
                     order_id: reBackData.OderId,
                     status: '1',
                 };
-                var ob$ = models_1.default.orderList.mySqlModel.upDateByPkData(data_1, 'order_id').pipe(operators_1.switchMap(function () { return models_1.default.taskList.mySqlModel.upDateByPkData(data_1, 'id').pipe(operators_1.map(function () { return ({ id: reserved_1.my_task_id }); }), operators_1.switchMap(function (userTask) {
+                var ob$ = models_1.default.orderList.mySqlModel.upDateByPkData(data, 'order_id').pipe(operators_1.map(function () { return ({ id: reserved_1.id }); }), operators_1.switchMap(function (userTask) {
                     var data = {
                         status: 2
                     };
@@ -241,8 +241,8 @@ function myTaskPayBack(req, res) {
                     if (where.strSql) {
                         where.strSql = " where " + where.strSql;
                     }
-                    return models_1.default.userTaskList.setUserTaskListByWhere(data, where).pipe(operators_1.map(function (value) { return value; }), operators_1.tap(function (value) { return JSON.stringify(value); }));
-                })); }), operators_1.catchError(function (err) { return err; }));
+                    return models_1.default.userTaskList.setUserTaskListByWhere(data, where);
+                }), operators_1.catchError(function (err) { return err; }));
                 ob$.subscribe(function (value) { return console.log('成功回调数据处理完成！'); }, function (err) { return console.log(err); });
             }
             else {

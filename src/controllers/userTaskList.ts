@@ -37,11 +37,11 @@ export function getMyTaskList(req: Request, res: Response) {
     where.strSql += (where.strSql === "" ? "" : " and ") + "t.task_id = ? "
   }
   if (dataAll.status) {
-    where.params.push(`${dataAll.status}`);
+    where.params.push(dataAll.status);
     where.strSql += (where.strSql === "" ? "" : " and ") + "t.status = ? "
   }
   if(true){
-    where.strSql += (where.strSql === "" ? "" : " and ") + "t.status != 3 "
+    where.strSql += (where.strSql === "" ? "" : " and ") + "u.status != 3 "
   }
   if (where.strSql) {
     where.strSql = " where " + where.strSql;
@@ -78,7 +78,7 @@ export function setMyTask(req: Request, res: Response) {
   dataAll.id ? data.task_id = dataAll.id : "";
   userData.id ? data.user_id = userData.id : "";
   userData.user_name ? data.user_name = userData.user_name : "";
-  data.expire_time = moment().add(60, 's').format('YYYY-MM-DD HH:mm:ss');
+  data.expire_time = moment().add(30, 's').format('YYYY-MM-DD HH:mm:ss');
 
   let where = {
     params: <any[]>[],
@@ -281,8 +281,7 @@ export function myTaskPayBack(req: Request, res: Response) {
           status: '1',
         }
         const ob$ = models.orderList.mySqlModel.upDateByPkData(data, 'order_id').pipe(
-          switchMap(() => models.taskList.mySqlModel.upDateByPkData(data, 'id').pipe(
-              map(() => ({ id: reserved.my_task_id })),
+              map(() => ({ id: reserved.id })),
               switchMap((userTask) => {
                 const data = {
                   status: 2
@@ -301,15 +300,12 @@ export function myTaskPayBack(req: Request, res: Response) {
                   where.strSql = " where " + where.strSql;
                 }
 
-                return models.userTaskList.setUserTaskListByWhere(data, where).pipe(
-                  map((value) => value),
-                  tap((value) => JSON.stringify(value)),
-                )
+                return models.userTaskList.setUserTaskListByWhere(data, where)
+        
               }),
-            )
-          ),
-          catchError(err => err)
-        )
+              catchError(err => err)
+          )
+          
 
         ob$.subscribe(value => console.log('成功回调数据处理完成！'), err => console.log(err));
 

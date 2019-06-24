@@ -39,6 +39,13 @@ export function updateTaskListUseNum(where:any): Observable<any> {
 }
 
 
+export function getUserTaskFinish(): Observable<any> {
+    let sql = `select task_id, count(task_id) task_num from user_task_list where status = '2' group by task_id`;
+    let params: any[] = [];
+    return mysqlMainDB.execWP(sql,params);
+}
+
+
 
 
 

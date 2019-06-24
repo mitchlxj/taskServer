@@ -33,4 +33,10 @@ function updateTaskListUseNum(where) {
     return mainDB_1.default.execWP(sql, params);
 }
 exports.updateTaskListUseNum = updateTaskListUseNum;
+function getUserTaskFinish() {
+    var sql = "select task_id, count(task_id) task_num from user_task_list where status = '2' group by task_id";
+    var params = [];
+    return mainDB_1.default.execWP(sql, params);
+}
+exports.getUserTaskFinish = getUserTaskFinish;
 //# sourceMappingURL=userTaskList.js.map

@@ -31,6 +31,9 @@ function myTaskDealSchedule() {
         where.strSql += (where.strSql === "" ? "" : " and ") + "status = 1 ";
     }
     if (true) {
+        where.strSql += (where.strSql === "" ? "" : " and ") + "pay_lock = 1 ";
+    }
+    if (true) {
         where.params.push(moment().format('YYYY-MM-DD HH:mm:ss'));
         where.strSql += (where.strSql === "" ? "" : " and ") + "expire_time <= ? ";
     }
@@ -44,18 +47,45 @@ function myTaskDealSchedule() {
         if (myTasks.length > 0) {
             for (var _i = 0, myTasks_1 = myTasks; _i < myTasks_1.length; _i++) {
                 var myTask = myTasks_1[_i];
+                console.log(myTask);
                 sql += "update user_task_list set status = ? where id =?;";
                 params.push('3', myTask.id);
+                sql += "update task_list set use_num = use_num + 1 where id =?;";
+                params.push(myTask.task_id);
             }
-            models_1.default.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) { return console.log('任务状态删除成功！'); }, function (err) { return console.log(err); });
-            var params2 = [];
-            var sql2 = '';
-            for (var _a = 0, myTasks_2 = myTasks; _a < myTasks_2.length; _a++) {
-                var myTask = myTasks_2[_a];
-                sql2 += "update task_list set use_num = use_num + 1 where id =?;";
-                params2.push(myTask.task_id);
+            models_1.default.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) { return console.log('任务状态处理成功！'); }, function (err) { return console.log(err); });
+        }
+    });
+    var where2 = {
+        params: [],
+        strSql: ""
+    };
+    if (true) {
+        where2.strSql += (where2.strSql === "" ? "" : " and ") + "status = 1 ";
+    }
+    if (true) {
+        where2.strSql += (where2.strSql === "" ? "" : " and ") + "pay_lock = 2 ";
+    }
+    if (true) {
+        where2.params.push(moment().format('YYYY-MM-DD HH:mm:ss'));
+        where2.strSql += (where2.strSql === "" ? "" : " and ") + "date_add(expire_time,interval 5 minute) <= ? ";
+    }
+    if (where2.strSql) {
+        where2.strSql = " where " + where2.strSql;
+    }
+    var order2 = "order by id desc";
+    models_1.default.userTaskList.mySqlModel.getWhere(where2, order2).pipe(operators_1.map(function (value) { return value.results; })).subscribe(function (myTasks) {
+        var params = [];
+        var sql = '';
+        if (myTasks.length > 0) {
+            for (var _i = 0, myTasks_2 = myTasks; _i < myTasks_2.length; _i++) {
+                var myTask = myTasks_2[_i];
+                sql += "update user_task_list set status = ? where id =?;";
+                params.push('3', myTask.id);
+                sql += "update task_list set use_num = use_num + 1 where id =?;";
+                params.push(myTask.task_id);
             }
-            models_1.default.taskList.mySqlModel.dealMySqlDIY(sql2, params2).subscribe(function (value) { return console.log('任务次数回收成功!'); }, function (err) { return console.log(err); });
+            models_1.default.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) { return console.log('支付锁定任务状态处理成功！'); }, function (err) { return console.log(err); });
         }
     });
 }
