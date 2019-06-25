@@ -47,7 +47,6 @@ function myTaskDealSchedule() {
         if (myTasks.length > 0) {
             for (var _i = 0, myTasks_1 = myTasks; _i < myTasks_1.length; _i++) {
                 var myTask = myTasks_1[_i];
-                console.log(myTask);
                 sql += "update user_task_list set status = ? where id =?;";
                 params.push('3', myTask.id);
                 sql += "update task_list set use_num = use_num + 1 where id =?;";

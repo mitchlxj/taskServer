@@ -56,7 +56,6 @@ export function myTaskDealSchedule() {
         
         if (myTasks.length > 0) {
             for (let myTask of myTasks) {
-                console.log(myTask);
                 sql += `update user_task_list set status = ? where id =?;`;
                 params.push('3', myTask.id);
                 sql += `update task_list set use_num = use_num + 1 where id =?;`;
