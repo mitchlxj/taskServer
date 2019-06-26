@@ -76,7 +76,7 @@ export default class mysqlModel {
     dealMySqlDIY = (sql:string, _params:any[]) => {
         const params = [..._params];
         const strSql = sql;
-        return mysqlMainDB.execWP(strSql, params);
+        return mysqlMainDB.execWPTRAN(strSql, params);
     };
 
 

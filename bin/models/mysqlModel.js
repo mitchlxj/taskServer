@@ -23,7 +23,7 @@ var mysqlModel = /** @class */ (function () {
         this.dealMySqlDIY = function (sql, _params) {
             var params = _params.slice();
             var strSql = sql;
-            return mainDB_1.default.execWP(strSql, params);
+            return mainDB_1.default.execWPTRAN(strSql, params);
         };
         if (!(typeof config == "object" && config.name && config.pk && config.column)) {
             throw Error("无效的config");

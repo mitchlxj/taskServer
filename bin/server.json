@@ -1,0 +1,15 @@
+{
+    "name": "taskServer",
+    "script": "server.js",
+    "cwd":"./bin/",
+    "exec_mode":"cluster",
+    "instances":2,
+    "env": {
+      "NODE_ENV": "development",
+      "NETWORK_ENV":"outer"
+    },
+    "error_file" : "/logs/taskServer/error.log",
+    "out_file": "/logs/taskServer/out.log",
+    "log_date_format":"“YYYY-MM-DD HH:mm:ss",
+    "merge_logs":true
+  }
