@@ -8,6 +8,7 @@ var JSONRet_1 = __importDefault(require("./JSONRet"));
 var errCode_1 = __importDefault(require("./errCode"));
 var config_1 = __importDefault(require("./config"));
 var models_1 = __importDefault(require("../models"));
+var allBlockIp = ['127.0.0.1']; //所有请求都禁止
 function jwtVerify(req, res, next) {
     var userToken = "";
     if (req.headers.authorization) {
@@ -43,4 +44,16 @@ function jwtVerify(req, res, next) {
     }
 }
 exports.jwtVerify = jwtVerify;
+function IPCheck(req, res, next) {
+    for (var _i = 0, allBlockIp_1 = allBlockIp; _i < allBlockIp_1.length; _i++) {
+        var ip = allBlockIp_1[_i];
+        if (req.hostname === ip) {
+            next();
+        }
+        else {
+            return res.json(new JSONRet_1.default(errCode_1.default.permission));
+        }
+    }
+}
+exports.IPCheck = IPCheck;
 //# sourceMappingURL=permission.js.map

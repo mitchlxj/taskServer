@@ -9,9 +9,9 @@ var redisUtil = /** @class */ (function () {
         this.redisDB = {
             "development": {
                 "outer": {
-                    host: '125.64.21.68',
+                    host: '125.64.21.72',
                     port: 6379,
-                    pass: 'GmAe&^%836youGen'
+                    pass: 'Rei*(^8239niNwoYYE'
                 },
                 'inner': {
                     host: '125.64.21.72',

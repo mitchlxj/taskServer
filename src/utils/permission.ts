@@ -1,3 +1,4 @@
+
 import jwt from 'jsonwebtoken';
 import { Request, Response } from "express";
 import JSONRet from "./JSONRet";
@@ -7,6 +8,9 @@ import models from '../models';
 import { User, mysqlResultObj } from '../interface';
 
 
+const allBlockIp:string[] = ['127.0.0.1']; //所有请求都禁止
+
+
 export function jwtVerify(req: any, res: Response, next: any) {
     let userToken = "";
 
@@ -14,21 +18,21 @@ export function jwtVerify(req: any, res: Response, next: any) {
         userToken = req.headers.authorization;
 
         jwt.verify(userToken, config.jwtTokenSecret, (err, user) => {
-            if(err) {
+            if (err) {
                 return res.json(new JSONRet(errCode.permission.DIY("用户状态已过期，请重新登录!")));
-            }else{
-                let data:any = {};
+            } else {
+                let data: any = {};
                 let _user = user as User;
                 data.id = _user.id;
                 data.token = userToken;
-                models.taskUser.checkUserToken(data).subscribe((value:mysqlResultObj) => {
-                    if(value.err){
+                models.taskUser.checkUserToken(data).subscribe((value: mysqlResultObj) => {
+                    if (value.err) {
                         return res.json(new JSONRet(errCode.mysql));
-                    }else{
-                        if(value.results.length>0){
+                    } else {
+                        if (value.results.length > 0) {
                             req.body.user = user;
                             next();
-                        }else {
+                        } else {
                             return res.json(new JSONRet(errCode.permission.DIY("用户状态已过期，请重新登录!")));
                         }
                     }
@@ -39,4 +43,17 @@ export function jwtVerify(req: any, res: Response, next: any) {
     } else {
         return res.json(new JSONRet(errCode.permission.DIY("用户还未登录!")));
     }
+}
+
+
+export function IPCheck(req: Request, res: Response, next: any) {
+
+    for(let ip of allBlockIp){
+        if(req.hostname === ip){
+            next();
+        }else{
+            return res.json(new JSONRet(errCode.permission));
+        }
+    }
+
 }

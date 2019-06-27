@@ -76,3 +76,18 @@ export interface MyTask {
 
 }
 
+
+/**
+ *ip禁止访问的配置对象
+ *
+ * @export
+ * @interface IpBlockOption
+ */
+export interface IpBlockOption {
+  block: boolean;
+  maxCount: number;
+  blockCount: number;
+  expireIn: number;
+  key: string;
+}
+

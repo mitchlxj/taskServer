@@ -6,9 +6,9 @@ export default class redisUtil {
     public redisDB:any = {
         "development":{
             "outer":{
-                host:'125.64.21.68',
+                host:'125.64.21.72',
                 port:6379,
-                pass:'GmAe&^%836youGen'
+                pass:'Rei*(^8239niNwoYYE'
             },
             'inner':{
                 host:'125.64.21.72',
@@ -37,6 +37,7 @@ export default class redisUtil {
        this.config =  this.redisDB[process.env.NODE_ENV || "development"][process.env.NETWORK_ENV || "inner"];
     }
 
+
     public createClient():redis.RedisClient{
         let redisClient = redis.createClient(this.config.port,this.config.host,{});
         redisClient.auth(this.config.pass,()=>{});
@@ -53,5 +54,6 @@ export default class redisUtil {
         }
         return this.redisClient[name];
     }
+   
 
 }

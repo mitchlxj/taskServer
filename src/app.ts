@@ -1,5 +1,6 @@
-import { taskList } from './models/taskList';
+
 import express from "express";
+import logger from 'morgan';
 import bodyParser from "body-parser";
 import favicon from "serve-favicon";
 import cookieParser from "cookie-parser";
@@ -8,6 +9,7 @@ import createError from "http-errors";
 import connectRedis from 'connect-redis';
 import session from 'express-session';
 import redisUtil from "./utils/redisUtil";
+import {IPCheck} from './utils/permission';
 
 const RedisStore = connectRedis(session);
 const redis_util = new redisUtil();
@@ -17,6 +19,9 @@ const app = express();
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+app.use(logger('short')); // combined common dev short tiny
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -33,6 +38,7 @@ app.use(session({
   cookie: { maxAge: 365 * 24 * 60 * 60 * 1000},
 }))
 
+app.use(IPCheck);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

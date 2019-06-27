@@ -14,10 +14,20 @@ var express_1 = __importDefault(require("express"));
 var router = express_1.default.Router();
 var controllers_1 = __importDefault(require("../controllers"));
 var permission = __importStar(require("../utils/permission"));
+var ipBlock_1 = require("../utils/ipBlock");
+var option = {
+    block: true,
+    maxCount: 10,
+    expireIn: 60,
+    blockCount: 20,
+    key: 'taskBlockIp'
+};
+var _ipBlock = new ipBlock_1.IpBlock(option);
+var ipBlock = ipBlock_1.ipBlockMiddleware(_ipBlock);
 /* GET home page. */
 router.post('/getTaskUser', controllers_1.default.taskUser.getTaskUser);
 router.post('/setTaskUser', controllers_1.default.taskUser.setTaskUser);
-router.post('/userLogin', controllers_1.default.taskUser.userLogin);
+router.post('/userLogin', ipBlock, controllers_1.default.taskUser.userLogin);
 router.post('/userLoginOut', controllers_1.default.taskUser.userLoginOut);
 router.post('/getUserInfo', permission.jwtVerify, controllers_1.default.taskUser.getUserInfo);
 router.post('/getMyTaskList', permission.jwtVerify, controllers_1.default.userTaskList.getMyTaskList);

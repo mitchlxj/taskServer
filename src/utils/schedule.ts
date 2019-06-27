@@ -53,7 +53,6 @@ export function myTaskDealSchedule() {
     ).subscribe((myTasks: MyTask[]) => {
         let params = [];
         let sql = '';
-        
         if (myTasks.length > 0) {
             for (let myTask of myTasks) {
                 sql += `update user_task_list set status = ? where id =?;`;
@@ -92,6 +91,7 @@ export function myTaskDealSchedule() {
 
     models.userTaskList.mySqlModel.getWhere(where2, order2).pipe(
         map(value => value.results),
+        
 
     ).subscribe((myTasks: MyTask[]) => {
         let params = [];

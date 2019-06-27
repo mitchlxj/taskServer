@@ -11,17 +11,17 @@ var mysqlSever = /** @class */ (function () {
         "development": {
             "outer": {
                 connectionLimit: 20,
-                host: '39.106.105.209',
-                user: 'polyuser',
-                password: 'Winner123456!',
-                database: 'polypay',
+                host: '125.64.21.72',
+                user: 'gameuser',
+                password: 'Winner!@#$%!xiaojie',
+                database: 'taskpublic',
                 multipleStatements: true
             },
             'inner': {
                 connectionLimit: 20,
-                host: '39.106.105.209',
-                user: 'taskuser',
-                password: 'Xiaojie_123',
+                host: '125.64.21.72',
+                user: 'gameuser',
+                password: 'Winner!@#$%!xiaojie',
                 database: 'taskpublic',
                 multipleStatements: true
             }

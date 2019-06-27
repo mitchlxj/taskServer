@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+var morgan_1 = __importDefault(require("morgan"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 var path_1 = __importDefault(require("path"));
@@ -11,12 +12,14 @@ var http_errors_1 = __importDefault(require("http-errors"));
 var connect_redis_1 = __importDefault(require("connect-redis"));
 var express_session_1 = __importDefault(require("express-session"));
 var redisUtil_1 = __importDefault(require("./utils/redisUtil"));
+var permission_1 = require("./utils/permission");
 var RedisStore = connect_redis_1.default(express_session_1.default);
 var redis_util = new redisUtil_1.default();
 var app = express_1.default();
 app.set("port", process.env.PORT || 3000);
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.use(morgan_1.default('short')); // combined common dev short tiny
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_session_1.default({
@@ -31,6 +34,7 @@ app.use(express_session_1.default({
     // cookie: {maxAge: 3600000}
     cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 },
 }));
+app.use(permission_1.IPCheck);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(cookie_parser_1.default());
