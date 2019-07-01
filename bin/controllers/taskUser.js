@@ -75,7 +75,7 @@ function userLogin(req, res) {
             var userToken_1 = jwt_1.default(user);
             data2.token = userToken_1;
             data2.id = user.id;
-            //req.session ? req.session.userToken = userToken : '';
+            req.session ? req.session.userToken = userToken_1 : '';
             return models_1.default.taskUser.mySqlModel.createOrUpdate(data2).pipe(operators_1.map(function (res) {
                 return { err: res.err, results: userToken_1, qy: res.qy };
             }));
@@ -97,6 +97,7 @@ function userLogin(req, res) {
 }
 exports.userLogin = userLogin;
 function userLoginOut(req, res) {
+    req.session ? req.session.userToken = null : "";
     return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("注销成功")));
 }
 exports.userLoginOut = userLoginOut;

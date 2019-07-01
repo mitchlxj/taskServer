@@ -29,7 +29,7 @@ app.use(express_session_1.default({
     }),
     secret: 'taskServer',
     resave: false,
-    //rolling: false,
+    rolling: true,
     saveUninitialized: false,
     // cookie: {maxAge: 3600000}
     cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 },
@@ -43,7 +43,6 @@ app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
     req.originalUrl = decodeURIComponent(req.originalUrl);
     next();
 });

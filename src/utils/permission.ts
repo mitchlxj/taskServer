@@ -8,14 +8,13 @@ import models from '../models';
 import { User, mysqlResultObj } from '../interface';
 
 
-const allBlockIp:string[] = ['127.0.0.1']; //所有请求都禁止
+const allWhiteIp: string[] = ['127.0.0.1', 'localhost']; //所有请求都禁止
 
 
 export function jwtVerify(req: any, res: Response, next: any) {
     let userToken = "";
-
-    if (req.headers.authorization) {
-        userToken = req.headers.authorization;
+    req.session.userToken ? userToken = req.session.userToken : "";
+    if (userToken) {
 
         jwt.verify(userToken, config.jwtTokenSecret, (err, user) => {
             if (err) {
@@ -47,13 +46,16 @@ export function jwtVerify(req: any, res: Response, next: any) {
 
 
 export function IPCheck(req: Request, res: Response, next: any) {
-
-    for(let ip of allBlockIp){
-        if(req.hostname === ip){
+    let find = false;
+    for (let ip of allWhiteIp) {
+        if (req.hostname === ip) {
+            find = true;
             next();
-        }else{
-            return res.json(new JSONRet(errCode.permission));
         }
+    }
+
+    if (!find) {
+        return res.json(new JSONRet(errCode.permission));
     }
 
 }

@@ -1,9 +1,9 @@
 import  express from 'express';
 const router = express.Router();
-import * as init from '../controllers/init'
+import controller from '../controllers'
 /* GET home page. */
 
-router.post('/getKeyforAccess',init.getKeyforAccess);
+router.post('/getKeyforAccess',controller.init.getKeyforAccess);
 
 
 

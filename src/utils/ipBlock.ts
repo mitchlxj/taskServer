@@ -1,3 +1,4 @@
+
 import redisUtil from "./redisUtil";
 import { RedisClient } from "redis";
 import { IpBlockOption } from "../interface";
@@ -6,6 +7,9 @@ import errCode from "./errCode";
 import JSONRet from "./JSONRet";
 
 export class IpBlock {
+
+
+    private static instance: IpBlock;
 
     ip: string = '';
     whiteList: number[] = [
@@ -58,6 +62,13 @@ export class IpBlock {
             }
         })
 
+    }
+
+    public static getInstance(option?: IpBlockOption): IpBlock{
+        if(!this.instance){
+            this.instance = new IpBlock(option);
+        }
+        return this.instance;
     }
 
 
@@ -215,7 +226,9 @@ export class IpBlock {
 }
 
 
-export function ipBlockMiddleware(ipBlock: IpBlock) {
+export function ipBlockMiddleware(option?:IpBlockOption) {
+
+    const ipBlock = IpBlock.getInstance(option);
 
     return (req: Request, res: Response, next: any) => {
         const ip = req.headers['x-forwarded-for'] ||

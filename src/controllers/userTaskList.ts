@@ -140,7 +140,7 @@ export function myTaskPay(req: Request, res: Response) {
     return res.json(new JSONRet(errCode.Err.DIY("用户还没有登录！")));
   }
 
-  let backUrl = 'http://39.106.105.209:3000/taskUser/myTaskPayBack';
+  let backUrl = 'http://125.64.21.72:3000/taskUser/myTaskPayBack';
 
   let tmpPayData: payData = {};
 

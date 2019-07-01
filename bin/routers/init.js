@@ -2,18 +2,11 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var router = express_1.default.Router();
-var init = __importStar(require("../controllers/init"));
+var controllers_1 = __importDefault(require("../controllers"));
 /* GET home page. */
-router.post('/getKeyforAccess', init.getKeyforAccess);
+router.post('/getKeyforAccess', controllers_1.default.init.getKeyforAccess);
 exports.default = router;
 //# sourceMappingURL=init.js.map

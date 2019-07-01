@@ -4,12 +4,9 @@ import JSONRet from '../utils/JSONRet';
 
 
 export function getKeyforAccess(req: Request, res: Response){
-    let secriykey = req.sessionID;
-    if(req.session){
-        req.session.client_secretkey = secriykey;
-        console.log(req.session.client_secretkey);
-    }
+    let secriykey = req.session;
    
-    let key = secriykey;
+
+    let key = JSON.stringify(secriykey);
     return res.json(new JSONRet(errCode.success.DIY("成功了"),key));
   };

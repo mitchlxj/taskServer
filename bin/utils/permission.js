@@ -8,11 +8,11 @@ var JSONRet_1 = __importDefault(require("./JSONRet"));
 var errCode_1 = __importDefault(require("./errCode"));
 var config_1 = __importDefault(require("./config"));
 var models_1 = __importDefault(require("../models"));
-var allBlockIp = ['127.0.0.1']; //所有请求都禁止
+var allWhiteIp = ['127.0.0.1', 'localhost']; //所有请求都禁止
 function jwtVerify(req, res, next) {
     var userToken = "";
-    if (req.headers.authorization) {
-        userToken = req.headers.authorization;
+    req.session.userToken ? userToken = req.session.userToken : "";
+    if (userToken) {
         jsonwebtoken_1.default.verify(userToken, config_1.default.jwtTokenSecret, function (err, user) {
             if (err) {
                 return res.json(new JSONRet_1.default(errCode_1.default.permission.DIY("用户状态已过期，请重新登录!")));
@@ -45,14 +45,16 @@ function jwtVerify(req, res, next) {
 }
 exports.jwtVerify = jwtVerify;
 function IPCheck(req, res, next) {
-    for (var _i = 0, allBlockIp_1 = allBlockIp; _i < allBlockIp_1.length; _i++) {
-        var ip = allBlockIp_1[_i];
+    var find = false;
+    for (var _i = 0, allWhiteIp_1 = allWhiteIp; _i < allWhiteIp_1.length; _i++) {
+        var ip = allWhiteIp_1[_i];
         if (req.hostname === ip) {
+            find = true;
             next();
         }
-        else {
-            return res.json(new JSONRet_1.default(errCode_1.default.permission));
-        }
+    }
+    if (!find) {
+        return res.json(new JSONRet_1.default(errCode_1.default.permission));
     }
 }
 exports.IPCheck = IPCheck;

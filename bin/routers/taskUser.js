@@ -22,8 +22,7 @@ var option = {
     blockCount: 20,
     key: 'taskBlockIp'
 };
-var _ipBlock = new ipBlock_1.IpBlock(option);
-var ipBlock = ipBlock_1.ipBlockMiddleware(_ipBlock);
+var ipBlock = ipBlock_1.ipBlockMiddleware(option);
 /* GET home page. */
 router.post('/getTaskUser', controllers_1.default.taskUser.getTaskUser);
 router.post('/setTaskUser', controllers_1.default.taskUser.setTaskUser);

@@ -15,8 +15,7 @@ const option: IpBlockOption = {
     key: 'taskBlockIp'
 }
 
-const _ipBlock = new IpBlock(option);
-const ipBlock = ipBlockMiddleware(_ipBlock);
+const ipBlock = ipBlockMiddleware(option);
 
 
 /* GET home page. */

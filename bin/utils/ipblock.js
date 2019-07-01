@@ -52,6 +52,12 @@ var IpBlock = /** @class */ (function () {
             }
         });
     }
+    IpBlock.getInstance = function (option) {
+        if (!this.instance) {
+            this.instance = new IpBlock(option);
+        }
+        return this.instance;
+    };
     IpBlock.prototype.ipToNumber = function (ip) {
         var num = 0;
         if (ip == "") {
@@ -192,7 +198,8 @@ var IpBlock = /** @class */ (function () {
     return IpBlock;
 }());
 exports.IpBlock = IpBlock;
-function ipBlockMiddleware(ipBlock) {
+function ipBlockMiddleware(option) {
+    var ipBlock = IpBlock.getInstance(option);
     return function (req, res, next) {
         var ip = req.headers['x-forwarded-for'] ||
             req.ip ||
