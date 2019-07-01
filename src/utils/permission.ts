@@ -8,7 +8,7 @@ import models from '../models';
 import { User, mysqlResultObj } from '../interface';
 
 
-const allWhiteIp: string[] = ['127.0.0.1', 'localhost']; //所有请求都禁止
+const allWhiteIp: string[] = ['127.0.0.1', 'localhost','125.64.21.72']; //所有请求都禁止
 
 
 export function jwtVerify(req: any, res: Response, next: any) {
