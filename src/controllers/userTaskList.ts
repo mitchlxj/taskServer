@@ -78,7 +78,7 @@ export function setMyTask(req: Request, res: Response) {
   dataAll.id ? data.task_id = dataAll.id : "";
   userData.id ? data.user_id = userData.id : "";
   userData.user_name ? data.user_name = userData.user_name : "";
-  data.expire_time = moment().add(30, 's').format('YYYY-MM-DD HH:mm:ss');
+  data.expire_time = moment().add(60, 's').format('YYYY-MM-DD HH:mm:ss');
 
   let where = {
     params: <any[]>[],
