@@ -8,7 +8,8 @@ var JSONRet_1 = __importDefault(require("./JSONRet"));
 var errCode_1 = __importDefault(require("./errCode"));
 var config_1 = __importDefault(require("./config"));
 var models_1 = __importDefault(require("../models"));
-var allWhiteIp = ['127.0.0.1', 'localhost', '125.64.21.72']; //所有请求都禁止
+//所有请求都禁止
+var allWhiteIp = ['127.0.0.1', 'localhost', '125.64.21.72', '39.106.105.209'];
 function jwtVerify(req, res, next) {
     var userToken = "";
     req.session.userToken ? userToken = req.session.userToken : "";

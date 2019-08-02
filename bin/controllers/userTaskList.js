@@ -124,14 +124,12 @@ function myTaskPay(req, res) {
     if (!userData.user_name) {
         return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("用户还没有登录！")));
     }
-    var backUrl = 'http://125.64.21.72:3000/taskUser/myTaskPayBack';
+    var backUrl = 'http://39.106.105.209:3000/taskUser/myTaskPayBack';
     var tmpPayData = {};
     var telephone = userData.user_name;
     var nowTime = moment_1.default().format("YYMMDDHHmmss");
     var orderId = Math.random().toString(17).substr(2).substr(0, 16) + nowTime;
     var reserved = { name: 'taskPay', id: dataAll.my_task_id, task_id: dataAll.id, user_id: userData.id };
-    tmpPayData.CpId = '197';
-    tmpPayData.appId = '100356';
     tmpPayData.channelId = '137';
     tmpPayData.orderId = orderId;
     tmpPayData.name = '任务支付';
@@ -151,6 +149,11 @@ function myTaskPay(req, res) {
         if (task.status !== '1') {
             return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY('任务已经被关闭！')));
         }
+        if (!task.cp_id || !task.app_id) {
+            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY('没有对应商户ID！')));
+        }
+        tmpPayData.CpId = task.cp_id;
+        tmpPayData.appId = task.app_id;
         var url = "https://payment.unionpaygame.com/orders/H5";
         models_1.default.userTaskList.mySqlModel.get(dataAll.my_task_id).subscribe(function (resObj) {
             if (resObj.results.length <= 0) {

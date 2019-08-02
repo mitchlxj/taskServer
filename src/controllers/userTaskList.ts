@@ -140,7 +140,7 @@ export function myTaskPay(req: Request, res: Response) {
     return res.json(new JSONRet(errCode.Err.DIY("用户还没有登录！")));
   }
 
-  let backUrl = 'http://125.64.21.72:3000/taskUser/myTaskPayBack';
+  let backUrl = 'http://39.106.105.209:3000/taskUser/myTaskPayBack';
 
   let tmpPayData: payData = {};
 
@@ -151,8 +151,6 @@ export function myTaskPay(req: Request, res: Response) {
 
   let reserved = { name: 'taskPay', id: dataAll.my_task_id, task_id: dataAll.id, user_id: userData.id };
 
-  tmpPayData.CpId = '197';
-  tmpPayData.appId = '100356';
   tmpPayData.channelId = '137';
   tmpPayData.orderId = orderId;
   tmpPayData.name = '任务支付';
@@ -177,9 +175,15 @@ export function myTaskPay(req: Request, res: Response) {
       return res.json(new JSONRet(errCode.Err.DIY('任务已经被关闭！')));
     }
 
+    if (!task.cp_id || !task.app_id) {
+      return res.json(new JSONRet(errCode.Err.DIY('没有对应商户ID！')));
+    }
+
+
+    tmpPayData.CpId = task.cp_id;
+    tmpPayData.appId = task.app_id;
+
     const url = "https://payment.unionpaygame.com/orders/H5";
-
-
 
     models.userTaskList.mySqlModel.get(dataAll.my_task_id).subscribe((resObj) => {
 

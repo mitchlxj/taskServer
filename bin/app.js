@@ -28,8 +28,8 @@ app.use(express_session_1.default({
         client: redis_util.myCreateClient('sessionStore')
     }),
     secret: 'taskServer',
-    resave: false,
-    rolling: true,
+    resave: true,
+    rolling: false,
     saveUninitialized: false,
     // cookie: {maxAge: 3600000}
     cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 },
