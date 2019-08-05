@@ -167,44 +167,45 @@ function myTaskPay(req, res) {
             var myTaskData = { id: dataAll.my_task_id, pay_lock: 2 };
             models_1.default.userTaskList.mySqlModel.createOrUpdate(myTaskData).subscribe(function (value) {
                 tmpPayData.txnAmt = parseFloat(task.pay_num);
-                var txnItem = { propId: '11946', txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
+                var txnItem = { propId: task.prop_id, txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
                 tmpPayData.txnItem = JSON.stringify(txnItem);
                 var DataOrder = myTool.sortEach(tmpPayData);
-                var private_key = fs_1.default.readFileSync(path_1.default.join(__dirname, "../config/files/c6493fd2f5b91ba4c8d7e324ef803b8c_pc_private_key.pem")).toString();
-                tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
-                thirdPost_1.httpBFMRequest(telephone).subscribe(function (bfmBody) {
-                    var token = bfmBody.data.token;
-                    myTool.requestPost(url, tmpPayData).subscribe(function (body) {
-                        if (body.respCode == '00') {
-                            var orderListData = {};
-                            orderListData.order_id = orderId;
-                            orderListData.pay_num = tmpPayData.txnAmt;
-                            orderListData.task_id = dataAll.id;
-                            orderListData.user_id = userData.id;
-                            orderListData.pay_time = moment_1.default().format("YYYY-MM-DD HH:mm:ss");
-                            models_1.default.orderList.mySqlModel.createOrUpdate(orderListData).subscribe(function (value) {
-                                if (value.err) {
-                                    return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("支付失败")));
-                                }
-                                var sign = body.data.sign;
-                                var public_key = fs_1.default.readFileSync(path_1.default.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
-                                delete body.data.sign;
-                                var bodyOrder = myTool.sortEach(body.data);
-                                var _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
-                                if (_signVerify) {
-                                    var url_1 = body.data.url + "?token=" + token;
-                                    return res.json(new JSONRet_1.default(errCode_1.default.success, url_1));
-                                }
-                                else {
-                                    return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("签名验证失败")));
-                                }
-                            });
-                        }
-                        else {
-                            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY(body.respMsg)));
-                        }
-                    }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("获取TN号失败"), err)); });
-                }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err, err)); });
+                myTool.requestGet(task.secrity_key).subscribe(function (private_key) {
+                    tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
+                    thirdPost_1.httpBFMRequest(telephone).subscribe(function (bfmBody) {
+                        var token = bfmBody.data.token;
+                        myTool.requestPost(url, tmpPayData).subscribe(function (body) {
+                            if (body.respCode == '00') {
+                                var orderListData = {};
+                                orderListData.order_id = orderId;
+                                orderListData.pay_num = tmpPayData.txnAmt;
+                                orderListData.task_id = dataAll.id;
+                                orderListData.user_id = userData.id;
+                                orderListData.pay_time = moment_1.default().format("YYYY-MM-DD HH:mm:ss");
+                                models_1.default.orderList.mySqlModel.createOrUpdate(orderListData).subscribe(function (value) {
+                                    if (value.err) {
+                                        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("支付失败")));
+                                    }
+                                    var sign = body.data.sign;
+                                    var public_key = fs_1.default.readFileSync(path_1.default.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
+                                    delete body.data.sign;
+                                    var bodyOrder = myTool.sortEach(body.data);
+                                    var _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
+                                    if (_signVerify) {
+                                        var url_1 = body.data.url + "?token=" + token;
+                                        return res.json(new JSONRet_1.default(errCode_1.default.success, url_1));
+                                    }
+                                    else {
+                                        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("签名验证失败")));
+                                    }
+                                });
+                            }
+                            else {
+                                return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY(body.respMsg)));
+                            }
+                        }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("获取TN号失败"), err)); });
+                    }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err, err)); });
+                });
             }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
         });
     });

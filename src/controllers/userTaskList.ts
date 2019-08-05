@@ -40,7 +40,7 @@ export function getMyTaskList(req: Request, res: Response) {
     where.params.push(dataAll.status);
     where.strSql += (where.strSql === "" ? "" : " and ") + "t.status = ? "
   }
-  if(true){
+  if (true) {
     where.strSql += (where.strSql === "" ? "" : " and ") + "u.status != 3 "
   }
   if (where.strSql) {
@@ -203,51 +203,54 @@ export function myTaskPay(req: Request, res: Response) {
       models.userTaskList.mySqlModel.createOrUpdate(myTaskData).subscribe(value => {
 
         tmpPayData.txnAmt = parseFloat(task.pay_num);
-        const txnItem = { propId: '11946', txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
+        const txnItem = { propId: task.prop_id, txnItem: Math.round(tmpPayData.txnAmt / 0.01) };
         tmpPayData.txnItem = JSON.stringify(txnItem);
 
         let DataOrder = myTool.sortEach(tmpPayData);
-        let private_key = fs.readFileSync(path.join(__dirname, "../config/files/c6493fd2f5b91ba4c8d7e324ef803b8c_pc_private_key.pem")).toString();
-        tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
+        myTool.requestGet(task.secrity_key).subscribe(private_key => {
+
+          tmpPayData.sign = crypto.signSHA1(private_key, DataOrder);
 
 
-        httpBFMRequest(telephone).subscribe(bfmBody => {
-          const token = bfmBody.data.token;
-          myTool.requestPost(url, tmpPayData).subscribe(body => {
-            if (body.respCode == '00') {
-              let orderListData: OrderList = {};
-              orderListData.order_id = orderId;
-              orderListData.pay_num = tmpPayData.txnAmt as string;
-              orderListData.task_id = dataAll.id;
-              orderListData.user_id = userData.id;
-              orderListData.pay_time = moment().format("YYYY-MM-DD HH:mm:ss");
+          httpBFMRequest(telephone).subscribe(bfmBody => {
+            const token = bfmBody.data.token;
+            myTool.requestPost(url, tmpPayData).subscribe(body => {
+              if (body.respCode == '00') {
+                let orderListData: OrderList = {};
+                orderListData.order_id = orderId;
+                orderListData.pay_num = tmpPayData.txnAmt as string;
+                orderListData.task_id = dataAll.id;
+                orderListData.user_id = userData.id;
+                orderListData.pay_time = moment().format("YYYY-MM-DD HH:mm:ss");
 
-              models.orderList.mySqlModel.createOrUpdate(orderListData).subscribe((value) => {
-                if (value.err) {
-                  return res.json(new JSONRet(errCode.Err.DIY("支付失败")));
-                }
+                models.orderList.mySqlModel.createOrUpdate(orderListData).subscribe((value) => {
+                  if (value.err) {
+                    return res.json(new JSONRet(errCode.Err.DIY("支付失败")));
+                  }
 
-                let sign = body.data.sign;
-                let public_key = fs.readFileSync(path.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
-                delete body.data.sign;
+                  let sign = body.data.sign;
+                  let public_key = fs.readFileSync(path.join(__dirname, "../config/files/Game_Cp_public.pem")).toString();
+                  delete body.data.sign;
 
-                let bodyOrder = myTool.sortEach(body.data);
-                let _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
-                if (_signVerify) {
-                  const url = `${body.data.url}?token=${token}`;
-                  return res.json(new JSONRet(errCode.success, url));
-                } else {
-                  return res.json(new JSONRet(errCode.Err.DIY("签名验证失败")));
-                }
-              })
+                  let bodyOrder = myTool.sortEach(body.data);
+                  let _signVerify = crypto.verifySHA1(public_key, bodyOrder, sign);
+                  if (_signVerify) {
+                    const url = `${body.data.url}?token=${token}`;
+                    return res.json(new JSONRet(errCode.success, url));
+                  } else {
+                    return res.json(new JSONRet(errCode.Err.DIY("签名验证失败")));
+                  }
+                })
 
-            } else {
-              return res.json(new JSONRet(errCode.Err.DIY(body.respMsg)));
-            }
-          }, err => res.json(new JSONRet(errCode.Err.DIY("获取TN号失败"), err))
-          )
+              } else {
+                return res.json(new JSONRet(errCode.Err.DIY(body.respMsg)));
+              }
+            }, err => res.json(new JSONRet(errCode.Err.DIY("获取TN号失败"), err))
+            )
 
-        }, err => res.json(new JSONRet(errCode.Err, err)));
+          }, err => res.json(new JSONRet(errCode.Err, err)));
+        })
+
 
       }, err => res.json(new JSONRet(errCode.mysql)))
 
@@ -285,31 +288,31 @@ export function myTaskPayBack(req: Request, res: Response) {
           status: '1',
         }
         const ob$ = models.orderList.mySqlModel.upDateByPkData(data, 'order_id').pipe(
-              map(() => ({ id: reserved.id })),
-              switchMap((userTask) => {
-                const data = {
-                  status: 2
-                }
-                let where = {
-                  params: <any[]>[],
-                  strSql: <string>""
-                };
-                if (userTask.id) {
-                  where.params.push(userTask.id);
-                  where.strSql += (where.strSql === "" ? "" : " and ") + "id = ? "
-                }
-             
+          map(() => ({ id: reserved.id })),
+          switchMap((userTask) => {
+            const data = {
+              status: 2
+            }
+            let where = {
+              params: <any[]>[],
+              strSql: <string>""
+            };
+            if (userTask.id) {
+              where.params.push(userTask.id);
+              where.strSql += (where.strSql === "" ? "" : " and ") + "id = ? "
+            }
 
-                if (where.strSql) {
-                  where.strSql = " where " + where.strSql;
-                }
 
-                return models.userTaskList.setUserTaskListByWhere(data, where)
-        
-              }),
-              catchError(err => err)
-          )
-          
+            if (where.strSql) {
+              where.strSql = " where " + where.strSql;
+            }
+
+            return models.userTaskList.setUserTaskListByWhere(data, where)
+
+          }),
+          catchError(err => err)
+        )
+
 
         ob$.subscribe(value => console.log('成功回调数据处理完成！'), err => console.log(err));
 
