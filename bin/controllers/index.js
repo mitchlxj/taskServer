@@ -11,11 +11,13 @@ var taskUser = __importStar(require("./taskUser"));
 var taskList = __importStar(require("./taskList"));
 var userTaskList = __importStar(require("./userTaskList"));
 var init = __importStar(require("./init"));
+var generalizeUser = __importStar(require("./generalizeUser"));
 var controllers = {
     taskUser: taskUser,
     taskList: taskList,
     userTaskList: userTaskList,
     init: init,
+    generalizeUser: generalizeUser
 };
 exports.default = controllers;
 //# sourceMappingURL=index.js.map

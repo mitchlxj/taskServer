@@ -96,41 +96,6 @@ function userLogin(req, res) {
     });
 }
 exports.userLogin = userLogin;
-function userRegister(req, res) {
-    var dataAll = req.body;
-    var data = {};
-    var myReg = /^1(3|4|5|6|7|8|9)\d{9}$/;
-    if (!dataAll.user_name || !dataAll.passwordsGroup.password || !dataAll.passwordsGroup.password2 || !dataAll.tmpUserName) {
-        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("用户参数错误！")));
-    }
-    if (!myReg.test(dataAll.user_name)) {
-        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("手机号不正确！")));
-    }
-    if (dataAll.passwordsGroup.password !== dataAll.passwordsGroup.password2) {
-        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("两次密码不匹配！")));
-    }
-    data.user_name = dataAll.user_name;
-    data.user_password = crypto.encrypt(dataAll.passwordsGroup.password);
-    data.status = '1';
-    data.user_type = '3';
-    models_1.default.taskUser.mySqlModel.getKeyValue('user_name', dataAll.user_name).subscribe(function (users) {
-        if (users.results.length > 0) {
-            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("您已经注册过用户了！")));
-        }
-        models_1.default.taskUser.mySqlModel.createOrUpdate(data).subscribe(function (value) {
-            if (value.err) {
-                return res.json(new JSONRet_1.default(errCode_1.default.mysql));
-            }
-            models_1.default.taskUser.mySqlModel.getKeyValue('user_name', dataAll.tmpUserName).pipe(operators_1.map(function (userData) { return userData.results[0]; }), operators_1.map(function (user) { return ({ user_name: data.user_name, user_id: user.id }); }), operators_1.mergeMap(function (_userData) { return models_1.default.generalizeUser.mySqlModel.createOrUpdate(_userData); })).subscribe(function (value) {
-                if (value.err) {
-                    return res.json(new JSONRet_1.default(errCode_1.default.mysql));
-                }
-                return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("用户注册成功！")));
-            });
-        });
-    });
-}
-exports.userRegister = userRegister;
 function userLoginOut(req, res) {
     req.session ? req.session.userToken = null : "";
     return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("注销成功")));
@@ -158,4 +123,4 @@ function getUserInfo(req, res) {
     });
 }
 exports.getUserInfo = getUserInfo;
-//# sourceMappingURL=taskUser.js.map
+//# sourceMappingURL=taskUser copy.js.map

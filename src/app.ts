@@ -57,6 +57,7 @@ import routers from './routers';
 app.use('/init', routers.init);
 app.use('/taskUser', routers.taskUser);
 app.use('/taskList', routers.taskList);
+app.use('/generalizeUser', routers.generalizeUser);
 
 
 app.use((req, res, next) => {

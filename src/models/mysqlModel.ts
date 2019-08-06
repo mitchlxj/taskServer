@@ -59,6 +59,12 @@ export default class mysqlModel {
         return mysqlMainDB.execWP(strSql, params);
     };
 
+    getKeyValue(key: any,value:any) {
+        const params = [this.column, this.name, value];
+        const strSql = `select ?? from ?? where ${key} = ? `;
+        return mysqlMainDB.execWP(strSql, params);
+    };
+
 
     getWhere = (where: any, order: any) => {
         const params = [this.column, this.name, ...where.params];

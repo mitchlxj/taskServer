@@ -70,6 +70,12 @@ var mysqlModel = /** @class */ (function () {
         return mainDB_1.default.execWP(strSql, params);
     };
     ;
+    mysqlModel.prototype.getKeyValue = function (key, value) {
+        var params = [this.column, this.name, value];
+        var strSql = "select ?? from ?? where " + key + " = ? ";
+        return mainDB_1.default.execWP(strSql, params);
+    };
+    ;
     return mysqlModel;
 }());
 exports.default = mysqlModel;
