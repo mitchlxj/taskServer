@@ -6,8 +6,9 @@ import * as crypto from '../utils/crypto';
 import { mergeMap, concatMap, map, switchMap, tap, take, mergeAll, concatAll } from 'rxjs/operators';
 import moment from 'moment';
 import JwtSign from '../utils/jwt';
-import { mysqlResultObj } from '../interface';
+import { mysqlResultObj, User } from '../interface';
 import { of, from } from 'rxjs';
+import { formatPostData } from '../utils/formatData';
 
 
 export function getTaskUser(req: Request, res: Response) {
@@ -125,6 +126,7 @@ export function userRegister(req: Request, res: Response) {
   data.user_password = crypto.encrypt(dataAll.passwordsGroup.password);
   data.status = '1';
   data.user_type = '3';
+  data.area_limit = '1';
 
 
   models.taskUser.mySqlModel.getKeyValue('user_name', dataAll.user_name).subscribe(users => {
@@ -189,6 +191,58 @@ export function getUserInfo(req: any, res: Response) {
   })
 
 }
+
+
+
+export function getPublicUserList(req: Request, res: Response) {
+  let dataAll = req.body;
+
+  let userData: User = req.body.user || {};
+
+  let where = {
+    params: <any[]>[],
+    strSql: <string>""
+  };
+
+  if (userData.id) {
+    where.params.push(userData.id);
+    where.strSql += (where.strSql === "" ? "" : " and ") + "user_id = ? "
+  }
+  if (dataAll.status) {
+    where.params.push(`${dataAll.status}`);
+    where.strSql += (where.strSql === "" ? "" : " and ") + "status = ? "
+  }
+  if (where.strSql) {
+    where.strSql = " where " + where.strSql;
+  }
+
+  let order = "order by id desc";
+
+
+  let page = {
+    params: <any[]>[],
+    strSql: <string>""
+  };
+  if (typeof (dataAll.page) == "object" && Object.keys(dataAll.page).length > 0) {
+    if (dataAll.page.start >= 1 && dataAll.page.size > 0) {
+      page.strSql = " limit ?,?";
+      page.params.push((dataAll.page.start - 1) * dataAll.page.size);
+      page.params.push(dataAll.page.size);
+    }
+  }
+
+  models.generalizeUser.mySqlModel.getWhereAndPage(where, order, page).subscribe(value => {
+    if (value.err) {
+      return res.json(new JSONRet(errCode.mysql));
+    }
+
+    const result = formatPostData(value.results)
+
+    return res.json(new JSONRet(errCode.success, result));
+  })
+
+};
+
 
 
 

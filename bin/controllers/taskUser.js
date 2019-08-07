@@ -18,6 +18,7 @@ var operators_1 = require("rxjs/operators");
 var moment_1 = __importDefault(require("moment"));
 var jwt_1 = __importDefault(require("../utils/jwt"));
 var rxjs_1 = require("rxjs");
+var formatData_1 = require("../utils/formatData");
 function getTaskUser(req, res) {
     var dataAll = req.body;
     var where = {
@@ -113,6 +114,7 @@ function userRegister(req, res) {
     data.user_password = crypto.encrypt(dataAll.passwordsGroup.password);
     data.status = '1';
     data.user_type = '3';
+    data.area_limit = '1';
     models_1.default.taskUser.mySqlModel.getKeyValue('user_name', dataAll.user_name).subscribe(function (users) {
         if (users.results.length > 0) {
             return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("您已经注册过用户了！")));
@@ -158,4 +160,44 @@ function getUserInfo(req, res) {
     });
 }
 exports.getUserInfo = getUserInfo;
+function getPublicUserList(req, res) {
+    var dataAll = req.body;
+    var userData = req.body.user || {};
+    var where = {
+        params: [],
+        strSql: ""
+    };
+    if (userData.id) {
+        where.params.push(userData.id);
+        where.strSql += (where.strSql === "" ? "" : " and ") + "user_id = ? ";
+    }
+    if (dataAll.status) {
+        where.params.push("" + dataAll.status);
+        where.strSql += (where.strSql === "" ? "" : " and ") + "status = ? ";
+    }
+    if (where.strSql) {
+        where.strSql = " where " + where.strSql;
+    }
+    var order = "order by id desc";
+    var page = {
+        params: [],
+        strSql: ""
+    };
+    if (typeof (dataAll.page) == "object" && Object.keys(dataAll.page).length > 0) {
+        if (dataAll.page.start >= 1 && dataAll.page.size > 0) {
+            page.strSql = " limit ?,?";
+            page.params.push((dataAll.page.start - 1) * dataAll.page.size);
+            page.params.push(dataAll.page.size);
+        }
+    }
+    models_1.default.generalizeUser.mySqlModel.getWhereAndPage(where, order, page).subscribe(function (value) {
+        if (value.err) {
+            return res.json(new JSONRet_1.default(errCode_1.default.mysql));
+        }
+        var result = formatData_1.formatPostData(value.results);
+        return res.json(new JSONRet_1.default(errCode_1.default.success, result));
+    });
+}
+exports.getPublicUserList = getPublicUserList;
+;
 //# sourceMappingURL=taskUser.js.map
