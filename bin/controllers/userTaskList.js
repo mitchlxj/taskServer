@@ -95,15 +95,19 @@ function setMyTask(req, res) {
     }
     var order = "order by id desc";
     var insertId = '';
-    var sql = "SELECT COUNT(*) finish_num,t.user_paynum from task_list t join order_list o on t.id = o.task_id \n      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;";
-    var params = [userData.id, '1', dataAll.id];
+    var sql = "SELECT COUNT(*) finish_num,t.user_paynum from task_list t join order_list o on t.id = o.task_id \n      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;\n      select count(*) finish_all,t.use_num from task_list t join order_list o on t.id = o.task_id where o.status = ? and o.task_id = ?;";
+    var params = [userData.id, '1', dataAll.id, '1', dataAll.id];
     models_1.default.taskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) {
         if (value.err) {
             return res.json(new JSONRet_1.default(errCode_1.default.mysql));
         }
-        var task_data = value.results[0];
+        var task_data = value.results[0][0];
         if (parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum)) {
             return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY('已经完成可支付的任务次数！')));
+        }
+        var task_all_data = value.results[1][0];
+        if (parseInt(task_all_data.finish_all) >= parseInt(task_all_data.use_num)) {
+            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY('任务已达到最大可做次数！')));
         }
         models_1.default.taskList.mySqlModel.getWhere(where, order).pipe(operators_1.map(function (value) { return value.results.length > 0 ? value.results[0] : {}; })).subscribe(function (task) {
             if (task.status == '1' && task.use_num > 0) {

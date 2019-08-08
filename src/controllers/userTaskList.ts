@@ -103,17 +103,22 @@ export function setMyTask(req: Request, res: Response) {
 
 
   let sql = `SELECT COUNT(*) finish_num,t.user_paynum from task_list t join order_list o on t.id = o.task_id 
-      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;`;
+      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;
+      select count(*) finish_all,t.use_num from task_list t join order_list o on t.id = o.task_id where o.status = ? and o.task_id = ?;`;
 
-  let params = [userData.id,'1',dataAll.id];
+  let params = [userData.id,'1',dataAll.id,'1',dataAll.id];
 
   models.taskList.mySqlModel.dealMySqlDIY(sql,params).subscribe(value => {
     if(value.err){
       return res.json(new JSONRet(errCode.mysql));
     }
-    const task_data = value.results[0];
+    const task_data = value.results[0][0];
     if(parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum) ){
       return res.json(new JSONRet(errCode.Err.DIY('已经完成可支付的任务次数！')));
+    }
+    const task_all_data = value.results[1][0];
+    if(parseInt(task_all_data.finish_all) >= parseInt(task_all_data.use_num) ){
+      return res.json(new JSONRet(errCode.Err.DIY('任务已达到最大可做次数！')));
     }
 
     models.taskList.mySqlModel.getWhere(where, order).pipe(
