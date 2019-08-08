@@ -100,30 +100,50 @@ export function setMyTask(req: Request, res: Response) {
   let order = "order by id desc";
 
   let insertId = '';
-  models.taskList.mySqlModel.getWhere(where, order).pipe(
-    map(value => value.results.length > 0 ? value.results[0] : {}),
-  ).subscribe((task: Task) => {
-    if (task.status == '1' && task.use_num > 0) {
-      models.userTaskList.mySqlModel.createOrUpdate(data).pipe(
-        map((userTask) => userTask.results.insertId ? insertId = userTask.results.insertId : ""),
-        map(() => ({ id: dataAll.id, use_num: task.use_num - 1 })),
-        mergeMap((task) => models.taskList.mySqlModel.createOrUpdate(task))
-      ).subscribe(value => {
-        if (value.err) {
-          return res.json(new JSONRet(errCode.mysql));
-        }
 
-        models.userTaskList.mySqlModel.get(insertId).subscribe(value => {
+
+  let sql = `SELECT COUNT(*) finish_num,t.user_paynum from task_list t join order_list o on t.id = o.task_id 
+      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;`;
+
+  let params = [userData.id,'1',dataAll.id];
+
+  models.taskList.mySqlModel.dealMySqlDIY(sql,params).subscribe(value => {
+    if(value.err){
+      return res.json(new JSONRet(errCode.mysql));
+    }
+    const task_data = value.results[0];
+    if(parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum) ){
+      return res.json(new JSONRet(errCode.Err.DIY('已经完成可支付的任务次数！')));
+    }
+
+    models.taskList.mySqlModel.getWhere(where, order).pipe(
+      map(value => value.results.length > 0 ? value.results[0] : {}),
+    ).subscribe((task: Task) => {
+      if (task.status == '1' && task.use_num > 0) {
+        models.userTaskList.mySqlModel.createOrUpdate(data).pipe(
+          map((userTask) => userTask.results.insertId ? insertId = userTask.results.insertId : ""),
+          map(() => ({ id: dataAll.id, use_num: task.use_num - 1 })),
+          mergeMap((task) => models.taskList.mySqlModel.createOrUpdate(task))
+        ).subscribe(value => {
           if (value.err) {
             return res.json(new JSONRet(errCode.mysql));
           }
-          return res.json(new JSONRet(errCode.success, value.results));
+  
+          models.userTaskList.mySqlModel.get(insertId).subscribe(value => {
+            if (value.err) {
+              return res.json(new JSONRet(errCode.mysql));
+            }
+            return res.json(new JSONRet(errCode.success, value.results));
+          }, err => res.json(new JSONRet(errCode.mysql)))
         }, err => res.json(new JSONRet(errCode.mysql)))
-      }, err => res.json(new JSONRet(errCode.mysql)))
-    } else {
-      return res.json(new JSONRet(errCode.Err.DIY("任务被关闭或任务次数已经用完!")));
-    }
-  }, err => res.json(new JSONRet(errCode.mysql)));
+      } else {
+        return res.json(new JSONRet(errCode.Err.DIY("任务被关闭或任务次数已经用完!")));
+      }
+    }, err => res.json(new JSONRet(errCode.mysql)));
+
+  })
+
+  
 
 }
 

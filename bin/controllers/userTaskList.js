@@ -95,24 +95,35 @@ function setMyTask(req, res) {
     }
     var order = "order by id desc";
     var insertId = '';
-    models_1.default.taskList.mySqlModel.getWhere(where, order).pipe(operators_1.map(function (value) { return value.results.length > 0 ? value.results[0] : {}; })).subscribe(function (task) {
-        if (task.status == '1' && task.use_num > 0) {
-            models_1.default.userTaskList.mySqlModel.createOrUpdate(data).pipe(operators_1.map(function (userTask) { return userTask.results.insertId ? insertId = userTask.results.insertId : ""; }), operators_1.map(function () { return ({ id: dataAll.id, use_num: task.use_num - 1 }); }), operators_1.mergeMap(function (task) { return models_1.default.taskList.mySqlModel.createOrUpdate(task); })).subscribe(function (value) {
-                if (value.err) {
-                    return res.json(new JSONRet_1.default(errCode_1.default.mysql));
-                }
-                models_1.default.userTaskList.mySqlModel.get(insertId).subscribe(function (value) {
+    var sql = "SELECT COUNT(*) finish_num,t.user_paynum from task_list t join order_list o on t.id = o.task_id \n      join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;";
+    var params = [userData.id, '1', dataAll.id];
+    models_1.default.taskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) {
+        if (value.err) {
+            return res.json(new JSONRet_1.default(errCode_1.default.mysql));
+        }
+        var task_data = value.results[0];
+        if (parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum)) {
+            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY('已经完成可支付的任务次数！')));
+        }
+        models_1.default.taskList.mySqlModel.getWhere(where, order).pipe(operators_1.map(function (value) { return value.results.length > 0 ? value.results[0] : {}; })).subscribe(function (task) {
+            if (task.status == '1' && task.use_num > 0) {
+                models_1.default.userTaskList.mySqlModel.createOrUpdate(data).pipe(operators_1.map(function (userTask) { return userTask.results.insertId ? insertId = userTask.results.insertId : ""; }), operators_1.map(function () { return ({ id: dataAll.id, use_num: task.use_num - 1 }); }), operators_1.mergeMap(function (task) { return models_1.default.taskList.mySqlModel.createOrUpdate(task); })).subscribe(function (value) {
                     if (value.err) {
                         return res.json(new JSONRet_1.default(errCode_1.default.mysql));
                     }
-                    return res.json(new JSONRet_1.default(errCode_1.default.success, value.results));
+                    models_1.default.userTaskList.mySqlModel.get(insertId).subscribe(function (value) {
+                        if (value.err) {
+                            return res.json(new JSONRet_1.default(errCode_1.default.mysql));
+                        }
+                        return res.json(new JSONRet_1.default(errCode_1.default.success, value.results));
+                    }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
                 }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
-            }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
-        }
-        else {
-            return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("任务被关闭或任务次数已经用完!")));
-        }
-    }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
+            }
+            else {
+                return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("任务被关闭或任务次数已经用完!")));
+            }
+        }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
+    });
 }
 exports.setMyTask = setMyTask;
 function myTaskPay(req, res) {
