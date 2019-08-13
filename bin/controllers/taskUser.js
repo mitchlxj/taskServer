@@ -200,4 +200,32 @@ function getPublicUserList(req, res) {
 }
 exports.getPublicUserList = getPublicUserList;
 ;
+function seachUserPay(req, res) {
+    var dataAll = req.body;
+    var userData = req.body.user || {};
+    if (!dataAll.user_name) {
+        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("没有参数！")));
+    }
+    var page = {
+        params: [],
+        strSql: ""
+    };
+    if (typeof (dataAll.page) == "object" && Object.keys(dataAll.page).length > 0) {
+        if (dataAll.page.start >= 1 && dataAll.page.size > 0) {
+            page.strSql = " limit ?,?";
+            page.params.push((dataAll.page.start - 1) * dataAll.page.size);
+            page.params.push(dataAll.page.size);
+        }
+    }
+    var sql = "select u.user_name,o.pay_num,o.pay_time from order_list o join task_user u on o.user_id = u.id where u.user_name = ? and o.status = 1 order by o.id desc";
+    var params = [dataAll.user_name];
+    models_1.default.taskUser.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) {
+        if (value.err) {
+            return res.json(new JSONRet_1.default(errCode_1.default.mysql));
+        }
+        var result = formatData_1.formatPostData(value.results);
+        return res.json(new JSONRet_1.default(errCode_1.default.success, result));
+    });
+}
+exports.seachUserPay = seachUserPay;
 //# sourceMappingURL=taskUser.js.map

@@ -49,8 +49,6 @@ function myTaskDealSchedule() {
                 var myTask = myTasks_1[_i];
                 sql += "update user_task_list set status = ? where id =?;";
                 params.push('3', myTask.id);
-                sql += "update task_list set use_num = use_num + 1 where id =?;";
-                params.push(myTask.task_id);
             }
             models_1.default.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) { return console.log('任务状态处理成功！'); }, function (err) { return console.log(err); });
         }
@@ -81,8 +79,6 @@ function myTaskDealSchedule() {
                 var myTask = myTasks_2[_i];
                 sql += "update user_task_list set status = ? where id =?;";
                 params.push('3', myTask.id);
-                sql += "update task_list set use_num = use_num + 1 where id =?;";
-                params.push(myTask.task_id);
             }
             models_1.default.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(function (value) { return console.log('支付锁定任务状态处理成功！'); }, function (err) { return console.log(err); });
         }

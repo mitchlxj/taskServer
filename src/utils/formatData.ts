@@ -9,6 +9,7 @@ export function formatPostData(postData: any[]): any[] {
                 case "b_time":
                 case "e_time":
                 case "s_time":
+                case "pay_time":
                     if (data[key]) {
                         data[key] = moment(data[key]).format("YYYY-MM-DD HH:mm:ss");
                     }

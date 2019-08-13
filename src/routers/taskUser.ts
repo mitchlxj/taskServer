@@ -26,6 +26,7 @@ router.post('/userLogin', ipBlock, controller.taskUser.userLogin);
 router.post('/userLoginOut', controller.taskUser.userLoginOut);
 router.post('/getUserInfo', permission.jwtVerify, controller.taskUser.getUserInfo);
 router.post('/userRegister', controller.taskUser.userRegister);
+router.post('/seachUserPay', controller.taskUser.seachUserPay);
 
 router.post('/getMyTaskList', permission.jwtVerify, controller.userTaskList.getMyTaskList);
 router.post('/setMyTask', permission.jwtVerify, controller.userTaskList.setMyTask);

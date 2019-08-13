@@ -127,7 +127,7 @@ export function setMyTask(req: Request, res: Response) {
       if (task.status == '1' && task.use_num > 0) {
         models.userTaskList.mySqlModel.createOrUpdate(data).pipe(
           map((userTask) => userTask.results.insertId ? insertId = userTask.results.insertId : ""),
-          map(() => ({ id: dataAll.id, use_num: task.use_num - 1 })),
+          map(() => ({ id: dataAll.id, use_num: task.use_num })),
           mergeMap((task) => models.taskList.mySqlModel.createOrUpdate(task))
         ).subscribe(value => {
           if (value.err) {

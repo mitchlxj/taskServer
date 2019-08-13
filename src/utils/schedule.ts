@@ -57,8 +57,6 @@ export function myTaskDealSchedule() {
             for (let myTask of myTasks) {
                 sql += `update user_task_list set status = ? where id =?;`;
                 params.push('3', myTask.id);
-                sql += `update task_list set use_num = use_num + 1 where id =?;`;
-                params.push(myTask.task_id);
             }
             models.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(
                 value => console.log('任务状态处理成功！'), err => console.log(err));
@@ -100,8 +98,6 @@ export function myTaskDealSchedule() {
             for (let myTask of myTasks) {
                 sql += `update user_task_list set status = ? where id =?;`;
                 params.push('3', myTask.id);
-                sql += `update task_list set use_num = use_num + 1 where id =?;`;
-                params.push(myTask.task_id);
             }
             models.userTaskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(
                 value => console.log('支付锁定任务状态处理成功！'), err => console.log(err));

@@ -111,7 +111,7 @@ function setMyTask(req, res) {
         }
         models_1.default.taskList.mySqlModel.getWhere(where, order).pipe(operators_1.map(function (value) { return value.results.length > 0 ? value.results[0] : {}; })).subscribe(function (task) {
             if (task.status == '1' && task.use_num > 0) {
-                models_1.default.userTaskList.mySqlModel.createOrUpdate(data).pipe(operators_1.map(function (userTask) { return userTask.results.insertId ? insertId = userTask.results.insertId : ""; }), operators_1.map(function () { return ({ id: dataAll.id, use_num: task.use_num - 1 }); }), operators_1.mergeMap(function (task) { return models_1.default.taskList.mySqlModel.createOrUpdate(task); })).subscribe(function (value) {
+                models_1.default.userTaskList.mySqlModel.createOrUpdate(data).pipe(operators_1.map(function (userTask) { return userTask.results.insertId ? insertId = userTask.results.insertId : ""; }), operators_1.map(function () { return ({ id: dataAll.id, use_num: task.use_num }); }), operators_1.mergeMap(function (task) { return models_1.default.taskList.mySqlModel.createOrUpdate(task); })).subscribe(function (value) {
                     if (value.err) {
                         return res.json(new JSONRet_1.default(errCode_1.default.mysql));
                     }

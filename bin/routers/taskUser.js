@@ -30,6 +30,7 @@ router.post('/userLogin', ipBlock, controllers_1.default.taskUser.userLogin);
 router.post('/userLoginOut', controllers_1.default.taskUser.userLoginOut);
 router.post('/getUserInfo', permission.jwtVerify, controllers_1.default.taskUser.getUserInfo);
 router.post('/userRegister', controllers_1.default.taskUser.userRegister);
+router.post('/seachUserPay', controllers_1.default.taskUser.seachUserPay);
 router.post('/getMyTaskList', permission.jwtVerify, controllers_1.default.userTaskList.getMyTaskList);
 router.post('/setMyTask', permission.jwtVerify, controllers_1.default.userTaskList.setMyTask);
 router.post('/myTaskPay', permission.jwtVerify, controllers_1.default.userTaskList.myTaskPay);

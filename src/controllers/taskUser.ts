@@ -244,6 +244,46 @@ export function getPublicUserList(req: Request, res: Response) {
 };
 
 
+export function seachUserPay(req: Request, res: Response) {
+  let dataAll = req.body;
+
+  let userData: User = req.body.user || {};
+
+  if(!dataAll.user_name){
+    return res.json(new JSONRet(errCode.Err.DIY("没有参数！")));
+  }
+
+
+
+  let page = {
+    params: <any[]>[],
+    strSql: <string>""
+  };
+  if (typeof (dataAll.page) == "object" && Object.keys(dataAll.page).length > 0) {
+    if (dataAll.page.start >= 1 && dataAll.page.size > 0) {
+      page.strSql = " limit ?,?";
+      page.params.push((dataAll.page.start - 1) * dataAll.page.size);
+      page.params.push(dataAll.page.size);
+    }
+  }
+ 
+  let sql = `select u.user_name,o.pay_num,o.pay_time from order_list o join task_user u on o.user_id = u.id where u.user_name = ? and o.status = 1 order by o.id desc`;
+  let params = [dataAll.user_name];
+
+  models.taskUser.mySqlModel.dealMySqlDIY(sql, params).subscribe(value => {
+    if (value.err) {
+      return res.json(new JSONRet(errCode.mysql));
+    }
+
+    const result = formatPostData(value.results)
+
+    return res.json(new JSONRet(errCode.success, result));
+  })
+
+}
+
+
+
 
 
 
