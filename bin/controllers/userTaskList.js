@@ -139,7 +139,7 @@ function myTaskPay(req, res) {
     if (!userData.user_name) {
         return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("用户还没有登录！")));
     }
-    var backUrl = 'http://39.106.105.209:3000/taskUser/myTaskPayBack';
+    var backUrl = 'http://39.106.105.209:3013/taskUser/myTaskPayBack';
     var tmpPayData = {};
     var telephone = userData.user_name;
     var nowTime = moment_1.default().format("YYMMDDHHmmss");

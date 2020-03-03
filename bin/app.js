@@ -16,7 +16,7 @@ var permission_1 = require("./utils/permission");
 var RedisStore = connect_redis_1.default(express_session_1.default);
 var redis_util = new redisUtil_1.default();
 var app = express_1.default();
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 3013);
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(morgan_1.default('short')); // combined common dev short tiny
