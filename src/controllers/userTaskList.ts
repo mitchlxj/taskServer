@@ -372,46 +372,62 @@ export function myTaskDefaultPay(req: Request, res: Response) {
   }
 
   //默认用户登录
-  const userData = {
-    user_name: '18682972777',
-    password: '123456',
-  }
 
-  const loginUrl = `http://125.64.21.72:3013/taskUser/userLogin`;
 
-  myTool.requestPost(loginUrl, userData).subscribe(userData => {
-    // 接收任务
-    const userToken = userData.data;
-    const url = `http://125.64.21.72:3013/taskUser/setMyTask`;
-    const taskData = {
-      id: dataAll.id
+  models.taskUser.mySqlModel.getKeyValue('status', 1).subscribe(value => {
+    if (value.err) {
+      res.json(new JSONRet(errCode.Err.DIY("获取用户数据失败")));
+    }
+    const maxLength = value.results.length;
+    const selectKey = Math.floor(Math.random() * maxLength);
+    const user = value.results[selectKey];
+
+
+    const userData = {
+      user_name: user.user_name,
+      password:  crypto.decrypt(user.user_password),
     }
 
-    const headers = {
-      authorization: userToken
-    }
-    myTool.requestPost(url, taskData, true, headers).subscribe(backTask => {
-      const taskD = backTask.data[0];
-      const payData = {
-        my_task_id: taskD.id,
-        id: taskD.task_id,
-        frontUrl: 'http://125.64.21.72:3013/#/home/home1',
+
+    const loginUrl = `http://125.64.21.72:3013/taskUser/userLogin`;
+
+    myTool.requestPost(loginUrl, userData).subscribe(userData => {
+      // 接收任务
+      const userToken = userData.data;
+      const url = `http://125.64.21.72:3013/taskUser/setMyTask`;
+      const taskData = {
+        id: dataAll.id
       }
-
-      const url = `http://125.64.21.72:3013/taskUser/myTaskPay`;
 
       const headers = {
         authorization: userToken
       }
+      myTool.requestPost(url, taskData, true, headers).subscribe(backTask => {
+        const taskD = backTask.data[0];
+        const payData = {
+          my_task_id: taskD.id,
+          id: taskD.task_id,
+          frontUrl: 'http://125.64.21.72:3013/#/home/home1',
+        }
 
-      myTool.requestPost(url, payData, true, headers).subscribe(payData => {
-        const payUrl = payData.data;
-        return res.json(new JSONRet(errCode.success.DIY("成功"), payUrl));
-      },err=> res.json(new JSONRet(errCode.Err.DIY("支付请求失败"))))
+        const url = `http://125.64.21.72:3013/taskUser/myTaskPay`;
+
+        const headers = {
+          authorization: userToken
+        }
+
+        myTool.requestPost(url, payData, true, headers).subscribe(payData => {
+          const payUrl = payData.data;
+          return res.json(new JSONRet(errCode.success.DIY("成功"), payUrl));
+        }, err => res.json(new JSONRet(errCode.Err.DIY("支付请求失败"))))
 
 
-    },err=> res.json(new JSONRet(errCode.Err.DIY("接受任务失败"))))
-  },err=> res.json(new JSONRet(errCode.Err.DIY("请求失败"))))
+      }, err => res.json(new JSONRet(errCode.Err.DIY("接受任务失败"))))
+    }, err => res.json(new JSONRet(errCode.Err.DIY("请求失败"))))
+
+  })
+
+
 
 
 
