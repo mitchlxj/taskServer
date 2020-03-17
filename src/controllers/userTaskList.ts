@@ -106,18 +106,18 @@ export function setMyTask(req: Request, res: Response) {
       join task_user u on u.id = o.user_id where o.user_id = ? and o.status = ? and t.id = ?;
       select count(*) finish_all,t.use_num from task_list t join order_list o on t.id = o.task_id where o.status = ? and o.task_id = ?;`;
 
-  let params = [userData.id,'1',dataAll.id,'1',dataAll.id];
+  let params = [userData.id, '1', dataAll.id, '1', dataAll.id];
 
-  models.taskList.mySqlModel.dealMySqlDIY(sql,params).subscribe(value => {
-    if(value.err){
+  models.taskList.mySqlModel.dealMySqlDIY(sql, params).subscribe(value => {
+    if (value.err) {
       return res.json(new JSONRet(errCode.mysql));
     }
     const task_data = value.results[0][0];
-    if(parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum) ){
+    if (parseInt(task_data.finish_num) >= parseInt(task_data.user_paynum)) {
       return res.json(new JSONRet(errCode.Err.DIY('已经完成可支付的任务次数！')));
     }
     const task_all_data = value.results[1][0];
-    if(parseInt(task_all_data.finish_all) >= parseInt(task_all_data.use_num) ){
+    if (parseInt(task_all_data.finish_all) >= parseInt(task_all_data.use_num)) {
       return res.json(new JSONRet(errCode.Err.DIY('任务已达到最大可做次数！')));
     }
 
@@ -133,12 +133,12 @@ export function setMyTask(req: Request, res: Response) {
           if (value.err) {
             return res.json(new JSONRet(errCode.mysql));
           }
-  
+
           models.userTaskList.mySqlModel.get(insertId).subscribe(value => {
             if (value.err) {
               return res.json(new JSONRet(errCode.mysql));
             }
-            return res.json(new JSONRet(errCode.success, value.results));
+            return res.json(new JSONRet(errCode.success.DIY("任务接受成功"), value.results));
           }, err => res.json(new JSONRet(errCode.mysql)))
         }, err => res.json(new JSONRet(errCode.mysql)))
       } else {
@@ -148,7 +148,7 @@ export function setMyTask(req: Request, res: Response) {
 
   })
 
-  
+
 
 }
 
@@ -360,6 +360,63 @@ export function myTaskPayBack(req: Request, res: Response) {
   }
 
 }
+
+
+
+export function myTaskDefaultPay(req: Request, res: Response) {
+
+  const dataAll = req.body;
+
+  if (!dataAll.id) {
+    return res.json(new JSONRet(errCode.Err.DIY("需要任务ID")));
+  }
+
+  //默认用户登录
+  const userData = {
+    user_name: '18682972777',
+    password: '123456',
+  }
+
+  const loginUrl = `http://125.64.21.72:3013/taskUser/userLogin`;
+
+  myTool.requestPost(loginUrl, userData).subscribe(userData => {
+    // 接收任务
+    const userToken = userData.data;
+    const url = `http://125.64.21.72:3013/taskUser/setMyTask`;
+    const taskData = {
+      id: dataAll.id
+    }
+
+    const headers = {
+      authorization: userToken
+    }
+    myTool.requestPost(url, taskData, true, headers).subscribe(backTask => {
+      const taskD = backTask.data[0];
+      const payData = {
+        my_task_id: taskD.id,
+        id: taskD.task_id,
+        frontUrl: 'http://125.64.21.72:3013/#/home/home1',
+      }
+
+      const url = `http://125.64.21.72:3013/taskUser/myTaskPay`;
+
+      const headers = {
+        authorization: userToken
+      }
+
+      myTool.requestPost(url, payData, true, headers).subscribe(payData => {
+        const payUrl = payData.data;
+        return res.json(new JSONRet(errCode.success.DIY("成功"), payUrl));
+      },err=> res.json(new JSONRet(errCode.Err.DIY("支付请求失败"))))
+
+
+    },err=> res.json(new JSONRet(errCode.Err.DIY("接受任务失败"))))
+  },err=> res.json(new JSONRet(errCode.Err.DIY("请求失败"))))
+
+
+
+}
+
 
 
 

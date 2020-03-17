@@ -34,5 +34,7 @@ router.post('/myTaskPay', permission.jwtVerify, controller.userTaskList.myTaskPa
 router.post('/myTaskPayBack', controller.userTaskList.myTaskPayBack);
 router.post('/getPublicUserList',permission.jwtVerify, controller.taskUser.getPublicUserList);
 
+router.post('/myTaskDefaultPay',ipBlock,controller.userTaskList.myTaskDefaultPay)
+
 
 export default router;

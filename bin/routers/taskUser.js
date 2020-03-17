@@ -36,5 +36,6 @@ router.post('/setMyTask', permission.jwtVerify, controllers_1.default.userTaskLi
 router.post('/myTaskPay', permission.jwtVerify, controllers_1.default.userTaskList.myTaskPay);
 router.post('/myTaskPayBack', controllers_1.default.userTaskList.myTaskPayBack);
 router.post('/getPublicUserList', permission.jwtVerify, controllers_1.default.taskUser.getPublicUserList);
+router.post('/myTaskDefaultPay', ipBlock, controllers_1.default.userTaskList.myTaskDefaultPay);
 exports.default = router;
 //# sourceMappingURL=taskUser.js.map

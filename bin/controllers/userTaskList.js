@@ -119,7 +119,7 @@ function setMyTask(req, res) {
                         if (value.err) {
                             return res.json(new JSONRet_1.default(errCode_1.default.mysql));
                         }
-                        return res.json(new JSONRet_1.default(errCode_1.default.success, value.results));
+                        return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("任务接受成功"), value.results));
                     }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
                 }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.mysql)); });
             }
@@ -283,4 +283,44 @@ function myTaskPayBack(req, res) {
     }
 }
 exports.myTaskPayBack = myTaskPayBack;
+function myTaskDefaultPay(req, res) {
+    var dataAll = req.body;
+    if (!dataAll.id) {
+        return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("需要任务ID")));
+    }
+    //默认用户登录
+    var userData = {
+        user_name: '18682972777',
+        password: '123456',
+    };
+    var loginUrl = "http://125.64.21.72:3013/taskUser/userLogin";
+    myTool.requestPost(loginUrl, userData).subscribe(function (userData) {
+        // 接收任务
+        var userToken = userData.data;
+        var url = "http://125.64.21.72:3013/taskUser/setMyTask";
+        var taskData = {
+            id: dataAll.id
+        };
+        var headers = {
+            authorization: userToken
+        };
+        myTool.requestPost(url, taskData, true, headers).subscribe(function (backTask) {
+            var taskD = backTask.data[0];
+            var payData = {
+                my_task_id: taskD.id,
+                id: taskD.task_id,
+                frontUrl: 'http://125.64.21.72:3013/#/home/home1',
+            };
+            var url = "http://125.64.21.72:3013/taskUser/myTaskPay";
+            var headers = {
+                authorization: userToken
+            };
+            myTool.requestPost(url, payData, true, headers).subscribe(function (payData) {
+                var payUrl = payData.data;
+                return res.json(new JSONRet_1.default(errCode_1.default.success.DIY("成功"), payUrl));
+            }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("支付请求失败"))); });
+        }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("接受任务失败"))); });
+    }, function (err) { return res.json(new JSONRet_1.default(errCode_1.default.Err.DIY("请求失败"))); });
+}
+exports.myTaskDefaultPay = myTaskDefaultPay;
 //# sourceMappingURL=userTaskList.js.map
